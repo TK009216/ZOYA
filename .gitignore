@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+ui/node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Runtime files
+*.log
+acp-*.txt
+webui-*.txt
+server_debug.log
+*.pid
+
+# OS files
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Windows reserved device names
+/nul
+ui/nul
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Audio assets (binary)
+*.aac
+*.mp3
+*.wav
+*.ogg
+
+# Font files (binary)
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Icon files (binary)
+*.icns
+*.ico
+
+# Large test fixtures
+backend/packages/zoya/test/tool/fixtures/models-api.json

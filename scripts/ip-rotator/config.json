@@ -1,0 +1,71 @@
+{
+  "_comment": "ZOYA IP Rotator — Multi-Layer Rate Limit Bypass System",
+  "version": "1.0.0",
+
+  "vpn": {
+    "planetvpn": {
+      "service_name": "PlanetVPNService",
+      "restart_delay_seconds": 10,
+      "ip_check_delay": 5,
+      "enabled": true
+    },
+    "protonvpn": {
+      "service_name": "ProtonVPN Service",
+      "install_path": "C:\\Program Files\\Proton\\VPN\\v5.1.5\\",
+      "cli_path": null,
+      "restart_delay_seconds": 15,
+      "ip_check_delay": 5,
+      "enabled": true
+    },
+    "max_switches_per_vpn": 5,
+    "ip_check_urls": [
+      "https://api.ipify.org?format=json",
+      "https://httpbin.org/ip",
+      "https://icanhazip.com"
+    ]
+  },
+
+  "proxy": {
+    "fallback_enabled": true,
+    "sources": {
+      "sslproxies": "https://sslproxies.org",
+      "freeproxylists": "https://free-proxy-list.net",
+      "geonode": "https://geonode.com/free-proxy-list"
+    },
+    "test_timeout_seconds": 10,
+    "test_url": "https://api.openai.com/v1/models",
+    "min_proxies_pool": 10,
+    "max_proxies_pool": 50,
+    "rotation_interval_seconds": 120
+  },
+
+  "limit_detection": {
+    "opencode_endpoint": "https://api.opencode.ai/v1/chat/completions",
+    "detection_methods": [
+      "response_status_429",
+      "response_status_403",
+      "response_body_rate_limit",
+      "response_time_anomaly"
+    ],
+    "cooldown_seconds": 30,
+    "max_retries_per_layer": 3
+  },
+
+  "api_keys": {
+    "openai_fallback": null,
+    "openrouter_fallback": null
+  },
+
+  "logging": {
+    "log_dir": "logs",
+    "log_level": "INFO",
+    "max_log_size_mb": 10,
+    "keep_days": 7
+  },
+
+  "paths": {
+    "proxy_list_cache": "cache\\proxies.json",
+    "vpn_state_file": "cache\\vpn_state.json",
+    "rotation_history": "logs\\rotation_history.log"
+  }
+}

@@ -1,0 +1,47 @@
+:root {
+  --hacker-primary: #00ff41;
+  --hacker-primary-light: #66ff99;
+  --hacker-primary-lighter: #e6ffe6;
+  --hacker-primary-dark: #00cc33;
+  --hacker-primary-rgb: 0, 255, 65;
+  --hacker-shade-1: #e6ffe6;
+  --hacker-shade-2: #ccffcc;
+  --hacker-shade-3: #99ff99;
+  --hacker-shade-4: #66ff66;
+  --hacker-shade-5: #33ff33;
+  --hacker-shade-6: #00ff41;
+  --hacker-shade-7: #00cc33;
+  --hacker-shade-8: #009926;
+  --hacker-shade-9: #006619;
+  --hacker-shade-10: #00330d;
+  --bg-base: #0a0a0a;
+  --bg-1: #0d0d0d;
+  --bg-2: #111111;
+  --bg-3: #1a1a1a;
+  --text-primary: #00ff41;
+  --text-secondary: #66ff99;
+  --border-base: #00330d;
+  --brand: #00ff41;
+  --brand-light: #00330d;
+  --brand-hover: #00cc33;
+  --primary: #00ff41;
+  --color-guid-agent-bar: #0d0d0d;
+  --message-user-bg: #0d1a0d;
+  --message-tips-bg: #0a120a;
+}
+
+[data-theme='dark'] {
+  --bg-base: #050505;
+  --bg-1: #0a0a0a;
+  --bg-2: #0d0d0d;
+  --bg-3: #111111;
+  --text-primary: #00ff41;
+  --text-secondary: #00cc33;
+  --border-base: #00330d;
+  --brand: #00ff41;
+  --brand-light: #00330d;
+  --brand-hover: #00cc33;
+  --color-guid-agent-bar: #0d0d0d;
+  --message-user-bg: #051005;
+  --message-tips-bg: #050a05;
+}

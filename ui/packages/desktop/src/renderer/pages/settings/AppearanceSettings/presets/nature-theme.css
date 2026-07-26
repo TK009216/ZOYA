@@ -1,0 +1,52 @@
+:root {
+  --nature-primary: #2e7d32;
+  --nature-primary-light: #66bb6a;
+  --nature-primary-lighter: #e8f5e9;
+  --nature-primary-dark: #1b5e20;
+  --nature-primary-rgb: 46, 125, 50;
+  --nature-shade-1: #e8f5e9;
+  --nature-shade-2: #c8e6c9;
+  --nature-shade-3: #a5d6a7;
+  --nature-shade-4: #81c784;
+  --nature-shade-5: #66bb6a;
+  --nature-shade-6: #4caf50;
+  --nature-shade-7: #388e3c;
+  --nature-shade-8: #2e7d32;
+  --nature-shade-9: #1b5e20;
+  --nature-shade-10: #0a3d0e;
+  --bg-base: #f1f8e9;
+  --bg-1: #f0f7e8;
+  --bg-2: #dcedc8;
+  --bg-3: #c5e1a5;
+  --text-primary: #1a3a1a;
+  --text-secondary: #2e5a2e;
+  --border-base: #a5d6a7;
+  --brand: #4caf50;
+  --brand-light: #e8f5e9;
+  --brand-hover: #388e3c;
+  --primary: #4caf50;
+  --color-guid-agent-bar: #e8f5e9;
+  --message-user-bg: #e8f5e9;
+  --message-tips-bg: #f1f8e9;
+}
+
+[data-theme='dark'] {
+  --nature-primary: #66bb6a;
+  --nature-primary-light: #81c784;
+  --nature-primary-lighter: #0a2a0a;
+  --nature-primary-dark: #4caf50;
+  --bg-base: #0a1a0a;
+  --bg-1: #0f2a0f;
+  --bg-2: #1a3a1a;
+  --bg-3: #2a4a2a;
+  --text-primary: #c8e6c9;
+  --text-secondary: #a5d6a7;
+  --border-base: #2a4a2a;
+  --brand: #66bb6a;
+  --brand-light: #0a2a0a;
+  --brand-hover: #4caf50;
+  --primary: #66bb6a;
+  --color-guid-agent-bar: #0f2a0f;
+  --message-user-bg: #0f2a0f;
+  --message-tips-bg: #0a1a0a;
+}

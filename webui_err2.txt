@@ -1,0 +1,3 @@
+$ bun scripts/webui.ts --no-build
+[webui] failed to start: Failed to listen at 127.0.0.1
+error: script "webui" exited with code 1

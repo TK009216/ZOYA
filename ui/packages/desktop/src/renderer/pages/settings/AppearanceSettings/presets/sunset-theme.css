@@ -1,0 +1,52 @@
+:root {
+  --sunset-primary: #ff6b35;
+  --sunset-primary-light: #ff9a6c;
+  --sunset-primary-lighter: #ffe8d6;
+  --sunset-primary-dark: #e05520;
+  --sunset-primary-rgb: 255, 107, 53;
+  --sunset-shade-1: #fff0e6;
+  --sunset-shade-2: #ffe0cc;
+  --sunset-shade-3: #ffc499;
+  --sunset-shade-4: #ffa866;
+  --sunset-shade-5: #ff8c4a;
+  --sunset-shade-6: #ff6b35;
+  --sunset-shade-7: #e05520;
+  --sunset-shade-8: #c04010;
+  --sunset-shade-9: #8a2e08;
+  --sunset-shade-10: #5a1c00;
+  --bg-base: #fef5ef;
+  --bg-1: #fff0e6;
+  --bg-2: #ffe0cc;
+  --bg-3: #ffc499;
+  --text-primary: #2d0e00;
+  --text-secondary: #5a1c00;
+  --border-base: #ffa866;
+  --brand: #ff6b35;
+  --brand-light: #fff0e6;
+  --brand-hover: #e05520;
+  --primary: #ff6b35;
+  --color-guid-agent-bar: #fff0e6;
+  --message-user-bg: #fff0e6;
+  --message-tips-bg: #fef5ef;
+}
+
+[data-theme='dark'] {
+  --sunset-primary: #ff8c4a;
+  --sunset-primary-light: #ffa866;
+  --sunset-primary-lighter: #2d0e00;
+  --sunset-primary-dark: #ff6b35;
+  --bg-base: #1a0800;
+  --bg-1: #2d0e00;
+  --bg-2: #3a1200;
+  --bg-3: #5a1c00;
+  --text-primary: #ffe0cc;
+  --text-secondary: #ffc499;
+  --border-base: #5a1c00;
+  --brand: #ff8c4a;
+  --brand-light: #2d0e00;
+  --brand-hover: #ff6b35;
+  --primary: #ff8c4a;
+  --color-guid-agent-bar: #2d0e00;
+  --message-user-bg: #2d0e00;
+  --message-tips-bg: #1a0800;
+}

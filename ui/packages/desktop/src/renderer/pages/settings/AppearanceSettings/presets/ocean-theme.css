@@ -1,0 +1,52 @@
+:root {
+  --ocean-primary: #0077b6;
+  --ocean-primary-light: #48b5e0;
+  --ocean-primary-lighter: #e0f4ff;
+  --ocean-primary-dark: #005f8a;
+  --ocean-primary-rgb: 0, 119, 182;
+  --ocean-shade-1: #e0f4ff;
+  --ocean-shade-2: #b3e3ff;
+  --ocean-shade-3: #80d0ff;
+  --ocean-shade-4: #4db8ff;
+  --ocean-shade-5: #1aa3ff;
+  --ocean-shade-6: #0077b6;
+  --ocean-shade-7: #005f8a;
+  --ocean-shade-8: #004a6e;
+  --ocean-shade-9: #003552;
+  --ocean-shade-10: #002036;
+  --bg-base: #f0f8ff;
+  --bg-1: #e6f3ff;
+  --bg-2: #cce7ff;
+  --bg-3: #99cfff;
+  --text-primary: #001a2e;
+  --text-secondary: #003552;
+  --border-base: #80d0ff;
+  --brand: #0077b6;
+  --brand-light: #e0f4ff;
+  --brand-hover: #005f8a;
+  --primary: #0077b6;
+  --color-guid-agent-bar: #e0f4ff;
+  --message-user-bg: #e0f4ff;
+  --message-tips-bg: #f0f8ff;
+}
+
+[data-theme='dark'] {
+  --ocean-primary: #48b5e0;
+  --ocean-primary-light: #80d0ff;
+  --ocean-primary-lighter: #002036;
+  --ocean-primary-dark: #0077b6;
+  --bg-base: #000d14;
+  --bg-1: #001a2e;
+  --bg-2: #002036;
+  --bg-3: #003552;
+  --text-primary: #b3e3ff;
+  --text-secondary: #80d0ff;
+  --border-base: #003552;
+  --brand: #48b5e0;
+  --brand-light: #002036;
+  --brand-hover: #0077b6;
+  --primary: #48b5e0;
+  --color-guid-agent-bar: #002036;
+  --message-user-bg: #002036;
+  --message-tips-bg: #001a2e;
+}
