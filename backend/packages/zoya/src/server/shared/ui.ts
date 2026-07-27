@@ -83,6 +83,8 @@ export function serveUIEffect(
     const embeddedWebUI = yield* Effect.promise(() => embeddedUI(services.disableEmbeddedWebUi))
     const path = new URL(request.url, "http://localhost").pathname
 
+    if (path.startsWith("/api/")) return notFound()
+
     if (embeddedWebUI) return yield* serveEmbeddedUIEffect(path, services.fs, embeddedWebUI)
 
     const response = yield* services.client.execute(

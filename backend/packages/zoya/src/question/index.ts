@@ -11,6 +11,19 @@ import { EventV2 } from "@zoya/core/event"
 // `Question.ask` and other internal sites trust the type contract without a
 // re-decode to coerce nested class instances.
 
+export const QuestionType = Schema.Literal(
+  "text",
+  "single-select",
+  "multi-select",
+  "confirm",
+  "rating",
+  "slider",
+  "file",
+  "date",
+  "color",
+  "location",
+).annotate({ identifier: "QuestionType" })
+
 export const Option = Schema.Struct({
   label: Schema.String.annotate({
     description: "Display text (1-5 words, concise)",
@@ -21,7 +34,54 @@ export const Option = Schema.Struct({
 }).annotate({ identifier: "QuestionOption" })
 export type Option = Schema.Schema.Type<typeof Option>
 
-const base = {
+const typeSpecific = {
+  type: Schema.optional(QuestionType).annotate({
+    description: "UI type for this question (default: single-select)",
+  }),
+  placeholder: Schema.optional(Schema.String).annotate({
+    description: "Placeholder text for text/date/color inputs",
+  }),
+  defaultValue: Schema.optional(Schema.String).annotate({
+    description: "Default/initial value",
+  }),
+  min: Schema.optional(Schema.Number).annotate({
+    description: "Minimum value (for slider/rating)",
+  }),
+  max: Schema.optional(Schema.Number).annotate({
+    description: "Maximum value (for slider/rating)",
+  }),
+  step: Schema.optional(Schema.Number).annotate({
+    description: "Step increment (for slider)",
+  }),
+  accept: Schema.optional(Schema.String).annotate({
+    description: "Accepted file extensions pattern (for file type, e.g. '.png,.jpg')",
+  }),
+  maxRating: Schema.optional(Schema.Number).annotate({
+    description: "Maximum rating stars (default: 5, for rating type)",
+  }),
+}
+
+export const Info = Schema.Struct({
+  question: Schema.String.annotate({
+    description: "Complete question",
+  }),
+  header: Schema.String.annotate({
+    description: "Very short label (max 30 chars)",
+  }),
+  options: Schema.optional(Schema.Array(Option)).annotate({
+    description: "Available choices (for single-select, multi-select, confirm)",
+  }),
+  multiple: Schema.optional(Schema.Boolean).annotate({
+    description: "Allow selecting multiple choices",
+  }),
+  custom: Schema.optional(Schema.Boolean).annotate({
+    description: "Allow typing a custom answer (default: true)",
+  }),
+  ...typeSpecific,
+}).annotate({ identifier: "QuestionInfo" })
+export type Info = Schema.Schema.Type<typeof Info>
+
+export const Prompt = Schema.Struct({
   question: Schema.String.annotate({
     description: "Complete question",
   }),
@@ -34,17 +94,7 @@ const base = {
   multiple: Schema.optional(Schema.Boolean).annotate({
     description: "Allow selecting multiple choices",
   }),
-}
-
-export const Info = Schema.Struct({
-  ...base,
-  custom: Schema.optional(Schema.Boolean).annotate({
-    description: "Allow typing a custom answer (default: true)",
-  }),
-}).annotate({ identifier: "QuestionInfo" })
-export type Info = Schema.Schema.Type<typeof Info>
-
-export const Prompt = Schema.Struct(base).annotate({ identifier: "QuestionPrompt" })
+}).annotate({ identifier: "QuestionPrompt" })
 export type Prompt = Schema.Schema.Type<typeof Prompt>
 
 export const Tool = Schema.Struct({

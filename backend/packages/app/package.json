@@ -1,6 +1,6 @@
 {
   "name": "@zoya/app",
-  "version": "1.17.6",
+  "version": "1.0.0",
   "description": "",
   "type": "module",
   "exports": {

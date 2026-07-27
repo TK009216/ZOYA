@@ -15,6 +15,7 @@ import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import { Permission } from "@/permission"
+import { AgentGroups } from "@/agent-groups"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@zoya/core/global"
 import path from "path"
@@ -261,6 +262,11 @@ export const layer = Layer.effect(
             prompt: PROMPT_SUMMARY,
           },
         }
+
+        yield* Effect.gen(function* () {
+          const svc = yield* AgentGroups.Service
+          yield* svc.registerGroupAgents(agents)
+        }).pipe(Effect.ignore)
 
         for (const [key, value] of Object.entries(cfg.agent ?? {})) {
           if (value.disable) {

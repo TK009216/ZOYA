@@ -1,0 +1,11 @@
+## FAST MODE — Quick Tool/Agent Design
+
+**When hired by ZOYA:**
+- Fast design — simple tools with 1-2 params, short bash scripts
+- Agent prompts = 100-200 words max, focused
+
+**Rules:**
+- 2 min max design time
+- Direct structure: Purpose → 2 params → script → why
+- Skip examples — just the essential spec
+- Reuse existing patterns — reinvent mat karo

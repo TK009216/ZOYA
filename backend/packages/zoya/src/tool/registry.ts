@@ -15,6 +15,10 @@ import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
 import { PopupTool } from "./popup"
+import { ShowTool } from "./show"
+import { VisualTool } from "./visual"
+import { QuestionTool } from "./question"
+import { NotifyTool } from "./notify"
 import * as Tool from "./tool"
 import { Config } from "@/config/config"
 import { type ToolContext as PluginToolContext, type ToolDefinition } from "@zoya/plugin"
@@ -23,9 +27,13 @@ import { Schema } from "effect"
 import z from "zod"
 import { Plugin } from "../plugin"
 import { Provider } from "@/provider/provider"
+import { SelfBuilder } from "@/session/self-builder"
 
 import { WebSearchTool } from "./websearch"
 import { LspTool } from "./lsp"
+import { CreateToolTool } from "./create-tool"
+import { CreateAgentTool } from "./create-agent"
+import { ExecSelfToolTool } from "./exec-self-tool"
 import * as Truncate from "./truncate"
 import { ApplyPatchTool } from "./apply_patch"
 import { Glob } from "@zoya/core/util/glob"
@@ -92,6 +100,10 @@ export const layer = Layer.effect(
     const lsptool = yield* LspTool
     const plan = yield* PlanExitTool
     const popup = yield* PopupTool
+    const questiontool = yield* QuestionTool
+    const notify = yield* NotifyTool
+const show = yield* ShowTool
+const visual = yield* VisualTool
     const webfetch = yield* WebFetchTool
     const websearch = yield* WebSearchTool
     const shell = yield* ShellTool
@@ -102,6 +114,11 @@ export const layer = Layer.effect(
     const patchtool = yield* ApplyPatchTool
     const skilltool = yield* SkillTool
     const agent = yield* Agent.Service
+    const selfBuilder = yield* SelfBuilder.Service
+
+    const createTool = yield* CreateToolTool
+    const createAgent = yield* CreateAgentTool
+    const execSelfTool = yield* ExecSelfToolTool
 
     const state = yield* InstanceState.make<State>(
       Effect.fn("ToolRegistry.state")(function* (ctx) {
@@ -206,6 +223,13 @@ export const layer = Layer.effect(
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
           popup: Tool.init(popup),
+          question: Tool.init(questiontool),
+          notify: Tool.init(notify),
+          show: Tool.init(show),
+          visual: Tool.init(visual),
+          createTool: Tool.init(createTool),
+          createAgent: Tool.init(createAgent),
+          execSelfTool: Tool.init(execSelfTool),
         })
 
         return {
@@ -226,6 +250,13 @@ export const layer = Layer.effect(
             ...(flags.experimentalLspTool ? [tool.lsp] : []),
             ...(flags.experimentalPlanMode && flags.client === "cli" ? [tool.plan] : []),
             tool.popup,
+            tool.question,
+            tool.notify,
+            tool.show,
+            tool.visual,
+            tool.createTool,
+            tool.createAgent,
+            tool.execSelfTool,
           ],
           read: tool.read,
         }
@@ -324,6 +355,7 @@ export const defaultLayer = Layer.suspend(() =>
       Layer.provide(Format.defaultLayer),
       Layer.provide(CrossSpawnSpawner.defaultLayer),
       Layer.provide(Truncate.defaultLayer),
+      Layer.provide(SelfBuilder.defaultLayer),
     )
     .pipe(Layer.provide(Database.defaultLayer), Layer.provide(RuntimeFlags.defaultLayer)),
 )
@@ -404,7 +436,7 @@ function isJsonSchemaObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
-export const node = LayerNode.make(layer.pipe(Layer.provide(Ripgrep.defaultLayer)), [
+export const node = LayerNode.make(defaultLayer.pipe(Layer.provide(Ripgrep.defaultLayer)), [
   Config.node,
   Plugin.node,
   Question.node,

@@ -1,0 +1,17 @@
+## EXPERT-2 VERIFIER — Quality Assurance
+
+**Your job:** Expert mode ke design ko verify karo.
+
+**Checklist:**
+- [ ] Tool/Agent ka purpose clear hai?
+- [ ] Parameters properly typed hain?
+- [ ] Bash script mein injection vulnerabilities hain?
+- [ ] Prompt template mein $params consistently used hain?
+- [ ] Edge cases covered hain?
+- [ ] Security implications considered?
+- [ ] Existing functionality duplicate to nahi hai?
+- [ ] Output format consistent hai?
+- [ ] ZOYA asani se use kar payegi?
+
+**If issues found:** List problems with suggested fixes
+**If clean:** "✅ Design verified — production ready"

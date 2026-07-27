@@ -1,0 +1,118 @@
+:root {
+  --zoya-primary: #00bcd4;
+  --zoya-primary-light: #4dd0e1;
+  --zoya-primary-lighter: #e0f7fa;
+  --zoya-primary-dark: #0097a7;
+  --zoya-primary-rgb: 0, 188, 212;
+  --zoya-glow: 0 0 20px rgba(0, 188, 212, 0.3);
+  --zoya-shade-1: #e0f7fa;
+  --zoya-shade-2: #b2ebf2;
+  --zoya-shade-3: #80deea;
+  --zoya-shade-4: #4dd0e1;
+  --zoya-shade-5: #26c6da;
+  --zoya-shade-6: #00bcd4;
+  --zoya-shade-7: #0097a7;
+  --zoya-shade-8: #00838f;
+  --zoya-shade-9: #006064;
+  --zoya-shade-10: #004d40;
+  --bg-base: #f0fafa;
+  --bg-1: #e6f7f8;
+  --bg-2: #cceff2;
+  --bg-3: #99dfe6;
+  --bg-4: #66cfd9;
+  --bg-5: #33bfcd;
+  --bg-6: #00bcd4;
+  --bg-hover: #e0f7fa;
+  --bg-active: #b2ebf2;
+  --text-primary: #002b30;
+  --text-secondary: #006064;
+  --text-disabled: #80deea;
+  --border-base: #80deea;
+  --border-light: #b2ebf2;
+  --brand: #00bcd4;
+  --brand-rgb: 0, 188, 212;
+  --brand-light: #e0f7fa;
+  --brand-hover: #0097a7;
+  --primary: #00bcd4;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --fill: #e6f7f8;
+  --fill-0: #ffffff;
+  --inverse: #ffffff;
+  --color-guid-agent-bar: #b2ebf2;
+  --message-user-bg: #e0f7fa;
+  --message-tips-bg: #f0fafa;
+}
+
+[data-theme='dark'] {
+  --zoya-primary: #4dd0e1;
+  --zoya-primary-light: #80deea;
+  --zoya-primary-lighter: #003840;
+  --zoya-primary-dark: #00bcd4;
+  --zoya-primary-rgb: 77, 208, 225;
+  --zoya-glow: 0 0 20px rgba(77, 208, 225, 0.3);
+  --zoya-shade-1: #002b30;
+  --zoya-shade-2: #003840;
+  --zoya-shade-3: #004d40;
+  --zoya-shade-4: #006064;
+  --zoya-shade-5: #00838f;
+  --zoya-shade-6: #0097a7;
+  --zoya-shade-7: #00bcd4;
+  --zoya-shade-8: #26c6da;
+  --zoya-shade-9: #4dd0e1;
+  --zoya-shade-10: #80deea;
+  --bg-base: #001a1e;
+  --bg-1: #002b30;
+  --bg-2: #003840;
+  --bg-3: #004d40;
+  --bg-4: #006064;
+  --bg-5: #00838f;
+  --bg-6: #0097a7;
+  --bg-hover: #002b30;
+  --bg-active: #003840;
+  --text-primary: #b2ebf2;
+  --text-secondary: #80deea;
+  --text-disabled: #006064;
+  --border-base: #006064;
+  --border-light: #003840;
+  --brand: #4dd0e1;
+  --brand-rgb: 77, 208, 225;
+  --brand-light: #003840;
+  --brand-hover: #00bcd4;
+  --primary: #4dd0e1;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --fill: #002b30;
+  --fill-0: rgba(255, 255, 255, 0.06);
+  --inverse: #001a1e;
+  --color-guid-agent-bar: #003840;
+  --message-user-bg: #003840;
+  --message-tips-bg: #002b30;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.9em;
+}
+
+.message-content {
+  line-height: 1.6;
+}
+
+.message-content p {
+  margin-bottom: 0.6em;
+}

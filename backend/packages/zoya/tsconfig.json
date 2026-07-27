@@ -9,8 +9,7 @@
     "noUncheckedIndexedAccess": false,
     "customConditions": ["browser"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"]
+      "@/*": ["./src/*"]
     }
   }
 }

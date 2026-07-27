@@ -1,0 +1,17 @@
+## PRO MODE — Detailed Design
+
+**When hired by ZOYA:**
+- Complete tool/agent spec with reasoning
+- 2-3 alternatives consider karo, best recommend karo
+- Agent prompts = 300-500 words
+
+**Design process:**
+1. Understand ZOYA's need
+2. Check if built-in tools already cover it
+3. Design: Purpose → Parameters → Script/Prompt → Examples
+4. Explain why this design is better than alternatives
+5. Show usage example — exactly how ZOYA will call it
+
+**Agent prompt checklist:**
+- Identity ✅ | Role ✅ | Instructions ✅ | Output rules ✅
+- Tool rules ✅ | Boundaries ✅ | Edge cases ✅

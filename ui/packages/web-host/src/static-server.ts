@@ -2,8 +2,8 @@
  * WebUI static server.
  *
  * Serves out/renderer/ as the SPA and reverse-proxies /api/*, /ws, /api/stt/stream,
- * /login and /logout to aioncore. All auth goes to backend's aionui-auth crate;
- * /login and /logout are aionui-auth's top-level paths, the rest live under
+ * /login and /logout to aioncore. All auth goes to ZOYA's auth handler;
+ * /login and /logout are top-level auth paths, the rest live under
  * /api/auth/*. /ws and /api/stt/stream are WebSocket/stream upgrades spliced at
  * TCP level; /api/stt/stream is the STT streaming endpoint.
  *
@@ -444,6 +444,312 @@ export async function startStaticServer(opts: StaticServerOptions): Promise<Stat
           });
           return;
         }
+        // POST /api/zoya/location — save exact GPS coordinates from browser geolocation
+        if (req.method === 'POST' && req.url === '/api/zoya/location') {
+          let body = '';
+          let totalBytes = 0;
+          req.on('data', (chunk) => {
+            totalBytes += chunk.length;
+            if (totalBytes > MAX_BODY_BYTES) { req.destroy(); return; }
+            body += chunk;
+          });
+          req.on('end', () => {
+            if (totalBytes > MAX_BODY_BYTES) {
+              res.writeHead(413, { 'content-type': 'application/json' });
+              res.end(JSON.stringify({ error: 'PAYLOAD_TOO_LARGE', message: `Request body exceeds ${MAX_BODY_BYTES} byte limit` }));
+              return;
+            }
+            try {
+              const p = JSON.parse(body);
+              const lat = parseFloat(p.latitude);
+              const lon = parseFloat(p.longitude);
+              const acc = parseFloat(p.accuracy ?? '0');
+              if (isNaN(lat) || isNaN(lon)) {
+                res.writeHead(400, { 'content-type': 'application/json' });
+                res.end(JSON.stringify({ error: 'INVALID_COORDS', message: 'latitude and longitude required' }));
+                return;
+              }
+              const home = os.homedir();
+              const prefsPath = path.join(home, '.config', 'zoya', 'preferences.json');
+              const dir = path.dirname(prefsPath);
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+              let existing: Record<string, unknown> = {};
+              try {
+                const raw = fs.readFileSync(prefsPath, 'utf-8');
+                existing = JSON.parse(raw);
+              } catch { /* start fresh */ }
+              existing.latitude = lat;
+              existing.longitude = lon;
+              existing.locationAccuracy = acc;
+              existing.lastAccessed = Date.now();
+              // Auto-set home on first location
+              if (!existing.homeLocation) {
+                existing.homeLocation = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+              }
+              fs.writeFileSync(prefsPath, JSON.stringify(existing, null, 2) + '\n', 'utf-8');
+              res.writeHead(200, { 'content-type': 'application/json' });
+              res.end(JSON.stringify({ success: true }));
+            } catch (err) {
+              res.writeHead(400, { 'content-type': 'application/json' });
+              res.end(JSON.stringify({ error: 'INVALID_LOCATION', message: String(err) }));
+            }
+          });
+          return;
+        }
+
+        // GET /api/zoya/location — read saved coordinates
+        if (req.method === 'GET' && req.url === '/api/zoya/location') {
+          const home = os.homedir();
+          const prefsPath = path.join(home, '.config', 'zoya', 'preferences.json');
+          try {
+            const raw = fs.readFileSync(prefsPath, 'utf-8');
+            const parsed = JSON.parse(raw);
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({
+              latitude: parsed.latitude ?? null,
+              longitude: parsed.longitude ?? null,
+              accuracy: parsed.locationAccuracy ?? null,
+            }));
+          } catch {
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ latitude: null, longitude: null, accuracy: null }));
+          }
+          return;
+        }
+
+        // GET /api/zoya/pc-name — get PC hostname
+        if (req.method === 'GET' && req.url === '/api/zoya/pc-name') {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ name: os.hostname(), hostname: os.hostname() }));
+          return;
+        }
+
+        // POST /api/zoya/heartbeat — track user activity for time-aware replies
+        if (req.method === 'POST' && req.url === '/api/zoya/heartbeat') {
+          const body = await collectBody(req);
+          try {
+            const { sessionId, timestamp } = JSON.parse(body);
+            if (sessionId && timestamp) {
+              const trackerPath = path.join(os.homedir(), '.config', 'zoya', 'time-tracker.json');
+              const dir = path.dirname(trackerPath);
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+              let data: any = {};
+              try { data = JSON.parse(fs.readFileSync(trackerPath, 'utf-8')); } catch { data = { sessions: {}, globalLastActive: 0, globalVisitCount: 0 }; }
+              if (!data.sessions) data.sessions = {};
+              if (!data.sessions[sessionId]) data.sessions[sessionId] = { sessionId, lastActive: 0, lastMessageId: '', totalActiveSeconds: 0, pendingTasks: [], interruptedTask: null, greetingSent: true, visitCount: 0 };
+              const prev = data.sessions[sessionId].lastActive || timestamp;
+              data.sessions[sessionId].lastActive = timestamp;
+              data.sessions[sessionId].totalActiveSeconds += Math.round((timestamp - prev) / 1000);
+              data.globalLastActive = timestamp;
+              fs.writeFileSync(trackerPath, JSON.stringify(data, null, 2), 'utf-8');
+            }
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ success: true }));
+          } catch {
+            res.writeHead(200).end(JSON.stringify({ success: false }));
+          }
+          return;
+        }
+
+        // GET /api/zoya/env — get environment info
+        if (req.method === 'GET' && req.url === '/api/zoya/env') {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({
+            computerName: os.hostname(),
+            hostname: os.hostname(),
+            platform: process.platform,
+            arch: process.arch,
+            username: process.env.USERNAME || process.env.USER || '',
+            homeDir: os.homedir(),
+            tempDir: os.tmpdir(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          }));
+          return;
+        }
+
+        // POST /api/zoya/exec — execute a shell command (for file scanner)
+        if (req.method === 'POST' && req.url === '/api/zoya/exec') {
+          let body = '';
+          req.on('data', (chunk) => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const { cmd } = JSON.parse(body);
+              if (!cmd) { res.writeHead(400).end(JSON.stringify({ error: 'cmd required' })); return; }
+              const result = require('child_process').execSync(cmd, { encoding: 'utf-8', timeout: 30000, stdio: 'pipe' });
+              res.writeHead(200, { 'content-type': 'text/plain' });
+              res.end(result || '');
+            } catch (e: any) {
+              res.writeHead(200, { 'content-type': 'text/plain' });
+              res.end(e.stdout || e.stderr || '');
+            }
+          });
+          return;
+        }
+
+        // POST /api/zoya/link-preview — fetch OpenGraph metadata
+        if (req.method === 'POST' && req.url === '/api/zoya/link-preview') {
+          const body = await collectBody(req);
+          try {
+            const { url: targetUrl } = JSON.parse(body);
+            if (!targetUrl) { res.writeHead(400).end(JSON.stringify({ error: 'url required' })); return; }
+            const httpsLib = targetUrl.startsWith('https') ? require('https') : require('http');
+            httpsLib.get(targetUrl, { timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0 ZOYA/1.0' } }, (resp: any) => {
+              let data = '';
+              resp.on('data', (chunk: string) => { data += chunk; if (data.length > 100000) { resp.destroy(); } });
+              resp.on('end', () => {
+                const og: Record<string, string> = {};
+                const titleMatch = data.match(/<title>([^<]*)<\/title>/i);
+                if (titleMatch) og.title = titleMatch[1];
+                const ogTags = data.matchAll(/<meta\s+(?:property|name)=["'](?:og:)?(\w+)["']\s+content=["']([^"']*)["']/gi);
+                for (const m of ogTags) { og[m[1]] = m[2]; }
+                const descMatch = data.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i);
+                if (descMatch && !og.description) og.description = descMatch[1];
+                res.writeHead(200, { 'content-type': 'application/json' });
+                res.end(JSON.stringify({
+                  url: targetUrl,
+                  title: og.title || '',
+                  description: og.description || '',
+                  image: og.image || '',
+                  favicon: og.favicon || `https://${new URL(targetUrl).hostname}/favicon.ico`,
+                  siteName: og.site_name || og.title || new URL(targetUrl).hostname,
+                  fetchedAt: Date.now(),
+                }));
+              });
+            }).on('error', (err: any) => {
+              res.writeHead(200, { 'content-type': 'application/json' });
+              res.end(JSON.stringify({ url: targetUrl, title: targetUrl, description: '', image: '', favicon: '', siteName: new URL(targetUrl).hostname, fetchedAt: Date.now() }));
+            });
+          } catch {
+            res.writeHead(400).end(JSON.stringify({ error: 'INVALID_URL' }));
+          }
+          return;
+        }
+
+        // POST /api/zoya/scan-result — save PC scan result
+        if (req.method === 'POST' && req.url === '/api/zoya/scan-result') {
+          const body = await collectBody(req);
+          try {
+            const result = JSON.parse(body);
+            const scanPath = path.join(os.homedir(), '.config', 'zoya', 'scan-result.json');
+            const dir = path.dirname(scanPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(scanPath, JSON.stringify(result, null, 2), 'utf-8');
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ success: true }));
+          } catch {
+            res.writeHead(400).end(JSON.stringify({ error: 'INVALID_DATA' }));
+          }
+          return;
+        }
+
+        // GET /api/zoya/scan-result — read saved PC scan result
+        if (req.method === 'GET' && req.url === '/api/zoya/scan-result') {
+          const scanPath = path.join(os.homedir(), '.config', 'zoya', 'scan-result.json');
+          try {
+            const raw = fs.readFileSync(scanPath, 'utf-8');
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(raw);
+          } catch {
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ drives: [], topFolders: [], totalFiles: 0, totalFolders: 0, scannedAt: 0 }));
+          }
+          return;
+        }
+
+        // GET /api/zoya/scan-status — get file scanner status
+        if (req.method === 'GET' && req.url === '/api/zoya/scan-status') {
+          const statusPath = path.join(os.homedir(), '.config', 'zoya', 'scan-status.json');
+          try {
+            const raw = fs.readFileSync(statusPath, 'utf-8');
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(raw);
+          } catch {
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ active: false, currentPath: '', filesIndexed: 0, totalFiles: 0, percent: 0, stage: 'Idle', projectTypes: [] }));
+          }
+          return;
+        }
+
+        // GET /api/zoya/scan-projects — get discovered projects
+        if (req.method === 'GET' && req.url === '/api/zoya/scan-projects') {
+          const projectsPath = path.join(os.homedir(), '.config', 'zoya', 'scan-projects.json');
+          try {
+            const raw = fs.readFileSync(projectsPath, 'utf-8');
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(raw);
+          } catch {
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ projects: [], totalFiles: 0, projectTypes: [] }));
+          }
+          return;
+        }
+
+        // POST /api/zoya/start-scan — trigger file system scan
+        if (req.method === 'POST' && req.url === '/api/zoya/start-scan') {
+          const statusPath = path.join(os.homedir(), '.config', 'zoya', 'scan-status.json');
+          const dir = path.dirname(statusPath);
+          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(statusPath, JSON.stringify({ active: true, currentPath: 'Starting...', filesIndexed: 0, totalFiles: 0, percent: 0, stage: 'Starting scan', projectTypes: [] }), 'utf-8');
+          // Fork async scan
+          require('child_process').exec('powershell -Command "Start-Job -ScriptBlock { Get-ChildItem -Recurse -Directory -ErrorAction SilentlyContinue $env:USERPROFILE\\projects -Depth 2 | Select-Object FullName, @{N=\'Files\';E={(Get-ChildItem $_.FullName -File -ErrorAction SilentlyContinue).Count}} | ConvertTo-Json -Compress } | Wait-Job | Receive-Job"', { timeout: 60000 }, (err: any, stdout: string) => {
+            const projectsPath = path.join(os.homedir(), '.config', 'zoya', 'scan-projects.json');
+            try {
+              const projects = stdout ? JSON.parse(stdout.trim() || '[]') : [];
+              const arr = Array.isArray(projects) ? projects : [projects];
+              const types = new Set<string>();
+              for (const p of arr) {
+                const name = (p.FullName || '').split('\\').pop() || '';
+                if (fs.existsSync(path.join(p.FullName || '', 'package.json'))) types.add('Node.js');
+                else if (fs.existsSync(path.join(p.FullName || '', 'Cargo.toml'))) types.add('Rust');
+                else if (fs.existsSync(path.join(p.FullName || '', 'pyproject.toml')) || fs.existsSync(path.join(p.FullName || '', 'requirements.txt'))) types.add('Python');
+                else if (fs.existsSync(path.join(p.FullName || '', 'pom.xml'))) types.add('Java');
+                else if (fs.existsSync(path.join(p.FullName || '', 'go.mod'))) types.add('Go');
+                else if (fs.existsSync(path.join(p.FullName || '', '.csproj'))) types.add('C#');
+                else if (fs.existsSync(path.join(p.FullName || '', 'Gemfile'))) types.add('Ruby');
+                else if (fs.existsSync(path.join(p.FullName || '', 'Makefile')) || fs.existsSync(path.join(p.FullName || '', 'CMakeLists.txt'))) types.add('C/C++');
+              }
+              const mapped = arr.map((p: any) => ({ path: p.FullName || '', type: 'mixed', files: p.Files || 0, lastModified: '' }));
+              const total = mapped.reduce((s: number, p: any) => s + (p.files || 0), 0);
+              fs.writeFileSync(projectsPath, JSON.stringify({ projects: mapped, totalFiles: total, projectTypes: [...types] }, null, 2), 'utf-8');
+            } catch {}
+            fs.writeFileSync(statusPath, JSON.stringify({ active: false, currentPath: '', filesIndexed: 0, totalFiles: 0, percent: 100, stage: 'Complete', projectTypes: [...types] }), 'utf-8');
+          });
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'Scan started' }));
+          return;
+        }
+
+        // POST /api/zoya/preferences — save user preferences
+        if (req.method === 'POST' && req.url === '/api/zoya/preferences') {
+          const body = await collectBody(req);
+          try {
+            const prefs = JSON.parse(body);
+            const prefsPath = path.join(os.homedir(), '.config', 'zoya', 'preferences.json');
+            const dir = path.dirname(prefsPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(prefsPath, JSON.stringify(prefs, null, 2), 'utf-8');
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ success: true }));
+          } catch {
+            res.writeHead(400).end(JSON.stringify({ error: 'INVALID_PREFS' }));
+          }
+          return;
+        }
+
+        // GET /api/zoya/preferences — read user preferences
+        if (req.method === 'GET' && req.url === '/api/zoya/preferences') {
+          const prefsPath = path.join(os.homedir(), '.config', 'zoya', 'preferences.json');
+          try {
+            const raw = fs.readFileSync(prefsPath, 'utf-8');
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(raw);
+          } catch {
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({}));
+          }
+          return;
+        }
+
         // GET /api/zoya/images/* — serve locally downloaded images
         if (req.method === 'GET' && req.url.startsWith('/api/zoya/images/')) {
           const filename = path.basename(req.url.replace('/api/zoya/images/', ''));
@@ -559,7 +865,7 @@ export async function startStaticServer(opts: StaticServerOptions): Promise<Stat
       }
 
       // /api/* â€” reverse proxy to backend (includes /api/auth/*).
-      // /login and /logout are aionui-auth's top-level auth endpoints: proxy them too
+      // /login and /logout are the backend's top-level auth endpoints: proxy them too
       // so WebUI browser clients reach the backend without a path-rewrite.
       if (req.url.startsWith('/api/') || req.url.startsWith('/api?') || req.url === '/login' || req.url === '/logout') {
         forwardToBackend(req, res, opts.backendPort);

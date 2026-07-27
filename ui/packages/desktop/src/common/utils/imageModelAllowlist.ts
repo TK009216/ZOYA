@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2025 ZOYA (zoya.local)
  * SPDX-License-Identifier: Apache-2.0
  */
 

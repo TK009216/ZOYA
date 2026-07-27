@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -e
+
+ZOYA_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+BACKEND_DIR="$ZOYA_DIR/backend"
+UI_DIR="$ZOYA_DIR/ui"
+
+# Port cleanup — kill anything on ZOYA's ports
+for port in 25809 25810; do
+  pid=$(lsof -ti tcp:$port 2>/dev/null || true)
+  if [ -n "$pid" ]; then
+    echo "[zoya] Killing process $pid on port $port..."
+    kill -9 "$pid" 2>/dev/null || true
+  fi
+done
+
+sleep 2
+
+# Install deps if needed
+if [ ! -d "$BACKEND_DIR/packages/zoya/node_modules" ]; then
+    echo "[zoya] Installing backend dependencies..."
+    cd "$BACKEND_DIR/packages/zoya"
+    bun install
+fi
+
+if [ ! -d "$UI_DIR/node_modules" ]; then
+    echo "[zoya] Installing UI dependencies (first run)..."
+    cd "$UI_DIR"
+    bun install
+fi
+
+# Start ZOYA ACP server on port 25810
+echo "[zoya] Starting ZOYA ACP server on port 25810..."
+cd "$BACKEND_DIR"
+bun run --cwd packages/zoya --conditions=browser src/index.ts acp --port 25810 &
+ZOYA_ACP_PID=$!
+echo "[zoya] ACP server PID=$ZOYA_ACP_PID"
+
+sleep 5
+
+# Start WebUI
+cd "$UI_DIR"
+echo "[zoya] Starting ZOYA WebUI..."
+bun run webui --open &
+
+# Trap to clean up on exit
+cleanup() {
+  echo "[zoya] Shutting down..."
+  kill "$ZOYA_ACP_PID" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# Wait for WebUI to finish
+wait
+

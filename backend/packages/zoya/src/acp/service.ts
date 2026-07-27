@@ -47,11 +47,12 @@ import type { Command } from "@/command"
 import { SystemPrompt } from "@/session/system"
 import { readConfigDirect } from "./config-reader"
 // Mode → model/variant mapping
-// Sab modes same model use karte hain — nemotron-3-ultra-free
+// Sab modes same model use karte hain — deepseek-v4-flash-free with VARIANTS
+// fast=default(no reasoning), pro=high(medium reasoning), expert=xhigh(max reasoning)
 const MODE_MODEL_MAP: Record<string, { providerID: string; modelID: string; variant?: string }> = {
-  fast: { providerID: "opencode", modelID: "nemotron-3-ultra-free" },
-  pro: { providerID: "opencode", modelID: "nemotron-3-ultra-free" },
-  expert: { providerID: "opencode", modelID: "nemotron-3-ultra-free" },
+  fast: { providerID: "opencode", modelID: "deepseek-v4-flash-free", variant: "default" },
+  pro: { providerID: "opencode", modelID: "deepseek-v4-flash-free", variant: "high" },
+  expert: { providerID: "opencode", modelID: "deepseek-v4-flash-free", variant: "xhigh" },
 }
 
 export const AuthMethodID = "zoya-login"
@@ -834,7 +835,7 @@ async function loadDirectorySnapshot(sdk: ZoyaClient, directory: string) {
       directory,
       providers,
       modes,
-      defaultModeID: "fast",
+      defaultModeID: fileConfig?.defaultMode ?? "pro",
       commands: commands.toSorted((a, b) => a.name.localeCompare(b.name)),
       ...(defaultModel ? { defaultModel } : {}),
     })
@@ -912,7 +913,9 @@ function selectDefaultModel(snapshot: Directory.Snapshot) {
   if (model) {
     return { providerID: model.providerID, modelID: model.modelID }
   }
-  return undefined
+  // LAST RESORT — kabhi undefined return nahi karna
+  console.warn("[ZOYA] selectDefaultModel — no model found, using hardcoded fallback")
+  return { providerID: ProviderV2.ID.make("opencode"), modelID: ModelV2.ID.make("deepseek-v4-flash-free") }
 }
 
 function detectSlashCommand(parts: ReturnType<typeof promptContentToParts>) {

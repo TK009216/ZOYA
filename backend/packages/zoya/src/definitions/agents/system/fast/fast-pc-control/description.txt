@@ -1,0 +1,2 @@
+Basic PC operations — commands, file ops, process management, quick system tasks.
+🚀 Deploy when: ZOYA ko koi bhi PC-related task karna hai — command run, file read/write, process check, app launch. Har PC kaam ke liye. Direct execution — no questions.

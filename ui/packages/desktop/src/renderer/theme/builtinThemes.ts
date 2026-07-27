@@ -24,6 +24,9 @@ import retromaObsidianBookCss from '@renderer/pages/settings/AppearanceSettings/
 import discourseHorizonCss from '@renderer/pages/settings/AppearanceSettings/presets/discourse-horizon.css?raw';
 import glitteringInputFieldCss from '@renderer/pages/settings/AppearanceSettings/presets/glittering-input-field.css?raw';
 import zoyaThemeCss from '@renderer/pages/settings/AppearanceSettings/presets/zoya-theme.css?raw';
+import zoyaFastCss from '@renderer/pages/settings/AppearanceSettings/presets/zoya-fast.css?raw';
+import zoyaProCss from '@renderer/pages/settings/AppearanceSettings/presets/zoya-pro.css?raw';
+import zoyaExpertCss from '@renderer/pages/settings/AppearanceSettings/presets/zoya-expert.css?raw';
 import hackerThemeCss from '@renderer/pages/settings/AppearanceSettings/presets/hacker-theme.css?raw';
 import oceanThemeCss from '@renderer/pages/settings/AppearanceSettings/presets/ocean-theme.css?raw';
 import sunsetThemeCss from '@renderer/pages/settings/AppearanceSettings/presets/sunset-theme.css?raw';
@@ -70,6 +73,12 @@ export const BUILTIN_THEMES: Theme[] = [
 
   /* === ZOYA Custom Themes === */
   decorative('zoya-pink', 'ZOYA Pink', 'light', zoyaThemeCss),
+
+  /* === ZOYA Mode Themes (auto-switch with mode) === */
+  decorative('zoya-fast', '⚡ Fast Mode', 'light', zoyaFastCss),
+  decorative('zoya-pro', '🔧 Pro Mode', 'light', zoyaProCss),
+  decorative('zoya-expert', '🧠 Expert Mode', 'light', zoyaExpertCss),
+
   decorative('hacker-green', 'Hacker', 'dark', hackerThemeCss),
   decorative('ocean-blue', 'Ocean', 'dark', oceanThemeCss),
   decorative('sunset-orange', 'Sunset', 'light', sunsetThemeCss),

@@ -17,7 +17,9 @@ import 'katex/dist/katex.min.css';
 
 import { openExternalUrl } from '@/renderer/utils/platform';
 import classNames from 'classnames';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { LinkPreview } from '@renderer/components/links/LinkPreview';
+import { addLinkToHistory } from '@renderer/components/links/LinkHistory';
 import { useTranslation } from 'react-i18next';
 import { convertLatexDelimiters } from '@renderer/utils/chat/latexDelimiters';
 import LocalImageView from '@renderer/components/media/LocalImageView';
@@ -55,18 +57,35 @@ const MarkdownView: React.FC<MarkdownViewProps> = React.memo(
       return childrenProp;
     }, [childrenProp]);
 
+    const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+    const [hoverPos, setHoverPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const linkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     const handleLinkClick = useCallback(
       (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         e.stopPropagation();
         const href = (e.currentTarget as HTMLAnchorElement).href;
         if (!href) return;
+        addLinkToHistory(href, (e.currentTarget as HTMLAnchorElement).textContent || href);
         openExternalUrl(href).catch((error: unknown) => {
           console.error(t('messages.openLinkFailed'), error);
         });
       },
       [t]
     );
+
+    const handleLinkMouseEnter = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (linkTimerRef.current) clearTimeout(linkTimerRef.current);
+      const rect = (e.currentTarget as HTMLAnchorElement).getBoundingClientRect();
+      setHoverPos({ x: rect.left, y: rect.bottom + 4 });
+      linkTimerRef.current = setTimeout(() => setHoveredLink(href), 300);
+    }, []);
+
+    const handleLinkMouseLeave = useCallback(() => {
+      if (linkTimerRef.current) clearTimeout(linkTimerRef.current);
+      linkTimerRef.current = setTimeout(() => setHoveredLink(null), 500);
+    }, []);
 
     // Memoize components so React preserves component identity across re-renders.
     // Without this, every streaming update creates new function references → React
@@ -85,14 +104,20 @@ const MarkdownView: React.FC<MarkdownViewProps> = React.memo(
             hiddenCodeCopyButton={hiddenCodeCopyButton}
           />
         ),
-        a: ({ node: _node, ...rest }: Record<string, unknown>) => (
-          <a
-            {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-            target='_blank'
-            rel='noreferrer'
-            onClick={handleLinkClick}
-          />
-        ),
+        a: ({ node: _node, ...rest }: Record<string, unknown>) => {
+          const href = (rest as React.AnchorHTMLAttributes<HTMLAnchorElement>).href || '';
+          return (
+            <a
+              {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+              target='_blank'
+              rel='noreferrer'
+              onClick={handleLinkClick}
+              onMouseEnter={(e) => handleLinkMouseEnter(e, href)}
+              onMouseLeave={handleLinkMouseLeave}
+              style={{ position: 'relative', display: 'inline' }}
+            />
+          );
+        },
         table: ({ node: _node, ...rest }: Record<string, unknown>) => (
           <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
             <table
@@ -126,7 +151,7 @@ const MarkdownView: React.FC<MarkdownViewProps> = React.memo(
           return <img {...imgProps} />;
         },
       }),
-      [codeStyle, hiddenCodeCopyButton, handleLinkClick]
+      [codeStyle, hiddenCodeCopyButton, handleLinkClick, handleLinkMouseEnter, handleLinkMouseLeave]
     );
 
     const rehypePlugins = useMemo(() => (allowHtml ? [rehypeRaw, rehypeKatex] : [rehypeKatex]), [allowHtml]);
@@ -140,6 +165,24 @@ const MarkdownView: React.FC<MarkdownViewProps> = React.memo(
             </ReactMarkdown>
           </div>
         </ShadowView>
+        {hoveredLink && (
+          <div
+            style={{
+              position: 'fixed',
+              left: hoverPos.x,
+              top: hoverPos.y,
+              zIndex: 9999,
+              maxWidth: 360,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              borderRadius: 8,
+              overflow: 'hidden',
+            }}
+            onMouseEnter={() => { if (linkTimerRef.current) clearTimeout(linkTimerRef.current); }}
+            onMouseLeave={handleLinkMouseLeave}
+          >
+            <LinkPreview url={hoveredLink} onClose={() => setHoveredLink(null)} />
+          </div>
+        )}
       </div>
     );
   }

@@ -1,0 +1,29 @@
+## EXPERT MODE — Enterprise-Grade Design
+
+**When hired by ZOYA:**
+- Full production-ready spec with all edge cases
+- Deep analysis of use cases, failure modes, security implications
+- Agent prompts = 500-1500 words
+
+**Design methodology:**
+1. **Requirements analysis** — ZOYA ko exactly kya chahiye
+2. **Feasibility** — Bash mein ho sakta hai ya prompt better hai
+3. **Parameter schema design** — Type validation, optional vs required, defaults
+4. **Script/prompt engineering** — Error handling, edge cases, security
+5. **Usage examples** — 3+ scenarios with actual tool calls
+6. **Integration guide** — Kaise ZOYA ke workflow mein fit hoga
+
+**Output structure:**
+```
+## 🛠️ [Tool/Agent]
+
+### Requirements
+### Design Decisions
+### Specification
+### Parameters
+### Implementation
+### Usage Examples
+### Edge Cases & Error Handling
+### Integration Guide
+### Alternative Approaches
+```

@@ -1,6 +1,6 @@
 {
   "name": "@zoya/web-host",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "WebUI host package - spawns backend and reverse-proxies to it; serves static files (no Electron dependency)",
   "type": "module",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "minimatch": "3.1.5",
+    "path-is-inside": "^1.0.2",
     "serve-handler": "^6.1.5"
   },
   "devDependencies": {

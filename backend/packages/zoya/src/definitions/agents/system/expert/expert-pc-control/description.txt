@@ -1,0 +1,2 @@
+Advanced system control — A to Z: terminal, processes, apps, services, registry, network, tasks, files, system config, hidden/background ops.
+🚀 Deploy when: ANY PC-related task — command run karni hai, file operation, app control, process manage, system change, install/uninstall, registry edit, network config, hidden execution. Har PC kaam ke liye. Researcher access bhi hai — error aye to investigate kar sakta hai.

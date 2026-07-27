@@ -49,6 +49,9 @@ import { AuthProvider } from './hooks/context/AuthContext';
 import { FeedbackProvider } from './hooks/context/FeedbackContext';
 import { ThemeProvider } from './hooks/context/ThemeContext';
 import { PreviewProvider } from './pages/conversation/Preview/context/PreviewContext';
+import { NotificationProvider } from './components/notifications/NotificationProvider';
+import OnboardingWizard from './components/onboarding/OnboardingWizard';
+import { onboardingManager } from './components/onboarding/OnboardingManager';
 
 // Arco Design
 import { ConfigProvider, Modal, Typography } from '@arco-design/web-react';
@@ -82,6 +85,7 @@ import { registerPwa } from './services/registerPwa';
 
 import { mutate as swrMutate } from 'swr';
 import { ipcBridge } from '@/common';
+import { getBaseUrl } from '@/common/adapter/httpBridge';
 import { DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents } from './utils/model/agentTypes';
 import { repairAllCronJobTimeZonesOnce } from '@renderer/pages/cron/repairCronJobTimeZone';
 
@@ -232,7 +236,11 @@ const AppProviders: React.FC<PropsWithChildren> = ({ children }) =>
         React.createElement(
           FeedbackProvider,
           null,
-          React.createElement(React.Fragment, null, React.createElement(RuntimeFailureDialogs, null), children)
+          React.createElement(
+            NotificationProvider,
+            null,
+            React.createElement(React.Fragment, null, React.createElement(RuntimeFailureDialogs, null), children)
+          )
         )
       )
     )
@@ -247,16 +255,29 @@ const Config: React.FC<PropsWithChildren> = ({ children }) => {
   return React.createElement(ConfigProvider, { theme: { primaryColor: '#4E5969' }, locale: arcoLocale }, children);
 };
 
+function requestGeolocation() {
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude, accuracy } = pos.coords
+      fetch(`${getBaseUrl()}/api/zoya/location`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ latitude, longitude, accuracy }),
+      }).catch(() => {})
+    },
+    () => {},
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 3600000 },
+  )
+}
+
 const Main = () => {
   const { ready } = useAuth();
   const [configReady, setConfigReady] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(() => onboardingManager.isCompleted());
 
   useEffect(() => {
     if (!ready) return;
-    // Prefetch `/api/agents` in parallel with configService.initialize() and
-    // seed the shared SWR cache so the Guid page's model/mode selectors can
-    // read `handshake.available_models` on the very first render — without
-    // waiting for a session to be created.
     Promise.all([
       configService.initialize().catch((err) => {
         console.error('Failed to initialize config:', err);
@@ -267,6 +288,7 @@ const Main = () => {
           console.error('Failed to prefetch agents:', err);
         }),
     ]).finally(() => setConfigReady(true));
+    requestGeolocation();
   }, [ready]);
 
   useEffect(() => {
@@ -276,6 +298,10 @@ const Main = () => {
 
   if (!ready || !configReady) {
     return null;
+  }
+
+  if (!onboardingDone) {
+    return <OnboardingWizard onComplete={() => setOnboardingDone(true)} />;
   }
 
   return (

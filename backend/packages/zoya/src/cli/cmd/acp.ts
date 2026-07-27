@@ -52,12 +52,12 @@ export const AcpCommand = effectCmd({
               .then((body) => {
                 if (body === undefined || body.healthy === true) return resolve()
                 if (attempts >= maxAttempts) return reject(new Error("Backing server health check timed out"))
-                setTimeout(poll, 200)
+                setTimeout(poll, 500)
               })
               .catch((e) => {
                 console.error(`Health check attempt ${attempts}/${maxAttempts} failed:`, e.message);
                 if (attempts >= maxAttempts) return reject(new Error("Backing server health check timed out"))
-                setTimeout(poll, 200)
+                setTimeout(poll, 500)
               })
           }
           poll()
@@ -66,13 +66,24 @@ export const AcpCommand = effectCmd({
 
     // Pre-warm provider cache in background (non-blocking) so ACP handshake
     // starts immediately. If pre-warm fails, providers load on first request.
-    sdk.config.providers({ directory: process.cwd() }).then(() => {
-      console.error("[ACP] provider cache pre-warmed")
+    console.error("[ACP] Starting provider cache pre-warm...")
+    sdk.config.providers({ directory: process.cwd() }).then((resp) => {
+      const count = resp.data?.providers?.length ?? 0
+      console.error(`[ACP] provider cache pre-warmed — ${count} providers loaded`)
     }).catch((e: unknown) => {
       console.error("[ACP] provider pre-warm failed, will load on first ACP request:", String(e))
     })
 
-    const input = new WritableStream<Uint8Array>({
+    const stdinReader = new ReadableStream<Uint8Array>({
+      start(controller) {
+        process.stdin.on("data", (chunk: Buffer) => {
+          controller.enqueue(new Uint8Array(chunk))
+        })
+        process.stdin.on("end", () => controller.close())
+        process.stdin.on("error", (err) => controller.error(err))
+      },
+    })
+    const stdoutWriter = new WritableStream<Uint8Array>({
       write(chunk) {
         return new Promise<void>((resolve, reject) => {
           process.stdout.write(chunk, (err) => {
@@ -85,17 +96,8 @@ export const AcpCommand = effectCmd({
         })
       },
     })
-    const output = new ReadableStream<Uint8Array>({
-      start(controller) {
-        process.stdin.on("data", (chunk: Buffer) => {
-          controller.enqueue(new Uint8Array(chunk))
-        })
-        process.stdin.on("end", () => controller.close())
-        process.stdin.on("error", (err) => controller.error(err))
-      },
-    })
 
-    const stream = ndJsonStream(input, output)
+    const stream = ndJsonStream(stdoutWriter, stdinReader)
     const agent = ACP.init({ sdk })
 
     new AgentSideConnection((conn) => {

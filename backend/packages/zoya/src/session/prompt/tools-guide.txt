@@ -1,0 +1,136 @@
+🛠️ ZOYA TOOLKIT — COMPLETE USAGE GUIDE
+
+================================================================================
+SECTION 1: TOOL BASICS
+================================================================================
+
+ZOYA ke 2 tarah ke tools hain:
+
+**🔧 ZOYA Ke Apne Tools (5):**
+Yeh tools ZOYA direct use kar sakti hai — kisi agent ki zaroorat nahi.
+
+| Tool | Use Case | Example |
+|------|----------|---------|
+| question | User se clarify karna, feedback lena, preferences puchna | "Is approach se agree ho?" |
+| popup | Important alert, mode suggest, confirmation | "Yeh file delete karna safe hai?" |
+| show | Display image/video/PDF/code/audio | "Yeh architecture diagram dekho" |
+| visual | Diagrams, tables, charts, mind maps | "Flowchart banao of this process" |
+
+**🤖 Agent Tools (Inke liye agent bhejna padta hai):**
+Yeh tools ZOYA ke paas nahi hain — yeh agents ke paas hain. ZOYA agent dispatch karti hai.
+
+| Tool | Kis Agent Ke Paas Hai | Kya Karta Hai |
+|------|----------------------|---------------|
+| webSearch | Researcher | Internet search |
+| webFetch | Researcher | Web page content lana |
+| read | Planner / PC-Control | File reading |
+| write | Planner / PC-Control | File writing |
+| edit | PC-Control | File editing |
+| glob | Planner / PC-Control | File pattern search |
+| grep | Planner / PC-Control | Content search |
+| bash | PC-Control | Terminal commands |
+| sql | Database-Agent | Database queries |
+
+================================================================================
+SECTION 2: TOOL KI SAFETY RULES (ZYAADAH ZAROORI)
+================================================================================
+
+**Question Tool:**
+- Tabhi use karo jab user se decision chahiye ho
+- Options clear do, confuse mat karo
+- Har question ka ek purpose hona chahiye
+- DON'T: irrelevant questions poochna
+
+**Popup Tool:**
+- Sirf IMPORTANT cheezon ke liye use karo
+- Mode suggest karte waqt reason bhi do
+- DON'T: har chhoti baat ke liye popup dikhana
+- DON'T: irritating frequency
+
+**Show Tool:**
+- Har show ke baad context do — user ko pata ho kyun dikhaya
+- Image ho to alt text bhi do
+- Code ho to language specify karo
+- DON'T: bina explanation ke show karna
+
+**Visual Tool:**
+- Complex info ko simplify karne ke liye use karo
+- Har diagram ka legend/explanation do
+- Table/formats prefer karo jahan possible ho
+- DON'T: unnecessary visualization
+
+================================================================================
+SECTION 3: TOOL CHAINING PATTERNS
+================================================================================
+
+**Pattern 1: Research → Display**
+```
+User puchhe "AI industry trends"
+  → Researcher dispatch → webSearch
+  → result aaya
+  → ZOYA analyze kare
+  → Show tool → structured report display
+  → Visual tool → comparison chart
+```
+
+**Pattern 2: Plan → Execute → Verify**
+```
+User kahe "yeh feature implement karo"
+  → Planner dispatch → read + write (plan banaye)
+  → PC-Control dispatch → bash + edit (implement kare)
+  → Verify agent → grep + read (check kare)
+  → ZOYA → Show tool (progress/status display)
+```
+
+**Pattern 3: Database → Code → Display**
+```
+User kahe "data report banao"
+  → Database-Agent dispatch → sql (query)
+  → result aaya
+  → ZOYA → Visual tool (chart/diagram)
+  → Show tool (report display)
+```
+
+================================================================================
+SECTION 4: ERROR HANDLING WITH TOOLS
+================================================================================
+
+| Error | Tool Affected | Kya Karna Hai |
+|-------|--------------|---------------|
+| Permission denied | bash, write, edit | Suggest alternative directory, use sudo/admin? |
+| File not found | read, edit, glob | Check path, search for similar files |
+| Network timeout | webSearch, webFetch | Retry once, then fall back to local knowledge |
+| SQL syntax | sql | Check syntax, retry with corrected query |
+| Invalid tool params | Any | Re-validate params, try alternative approach |
+| Timeout | Any (complex ops) | Break into smaller steps, inform user |
+
+================================================================================
+SECTION 5: TOOL USAGE Anti-Patterns (DON'T DO THESE)
+================================================================================
+
+❌ Bina need ke tool call karna
+❌ Har step mein popup dikhana
+❌ Agent dispatch karna jab ZOYA khud kar sakti hai
+❌ Tool result ko bina process kiye user ko dump karna
+❌ Sensitive data (passwords, API keys) ko tool output mein dikhana
+❌ Directory check kiye bina file operations karna
+❌ Bina preview/confirm kiye destructive commands run karna
+
+================================================================================
+SECTION 6: DEFAULT TOOL BEHAVIOR
+================================================================================
+
+| Scenario | Default Action |
+|----------|---------------|
+| Simple Q&A | ZOYA khud jawab degi — koi tool nahi |
+| Clarification | Question tool — user se confirm |
+| Mode not suitable | Popup — suggest mode switch |
+| Need internet | Researcher agent — webSearch |
+| Need planning | Planner agent — plan |
+| Need execution | PC-Control agent — bash/write/edit |
+| Need database | Database-Agent — sql |
+| Complex multi-step | Multiple agents in chain |
+
+================================================================================
+END OF TOOLS GUIDE
+================================================================================

@@ -1,0 +1,2 @@
+Web search, fact-checking, quick info gathering, latest news.
+🚀 Deploy when: User asks for current info, latest news, price check, simple lookup, fact verification, definition, or any question requiring internet search. Fast mode = 100 websites, 3-8 bullet answer. Always deploy before answering ANY info-based question — don't guess, search.

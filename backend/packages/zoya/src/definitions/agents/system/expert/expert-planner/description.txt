@@ -1,0 +1,2 @@
+Sirf plan banata hai — koi limit nahi, comprehensive, exact. Researcher 2-way use karta hai (research + verify). PC Control se existing project check karta hai.
+🚀 Deploy when: Koi bhi planning. Researcher se exhaustive research karaata hai, plan banata hai, researcher se verify karaata hai, temp file mein save karta hai. Extra features bhi add karta hai. Implementation nahi karta — sirf plan.

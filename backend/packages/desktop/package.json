@@ -1,7 +1,7 @@
 {
   "name": "@zoya/desktop",
   "private": true,
-  "version": "1.17.6",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "homepage": "https://opencode.ai",

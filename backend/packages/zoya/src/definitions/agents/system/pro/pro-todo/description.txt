@@ -1,0 +1,2 @@
+Code implementation, task execution, file operations, intermediate PC tasks.
+🚀 Deploy when: Tasks identified by planner need execution, user wants code written/changed, file operations, or any PC task. Pro mode = structured implementation with verification.

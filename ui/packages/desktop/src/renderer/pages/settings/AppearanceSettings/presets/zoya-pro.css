@@ -1,0 +1,119 @@
+:root {
+  --zoya-primary: #2196f3;
+  --zoya-primary-light: #64b5f6;
+  --zoya-primary-lighter: #e3f2fd;
+  --zoya-primary-dark: #1976d2;
+  --zoya-primary-rgb: 33, 150, 243;
+  --zoya-glow: 0 0 20px rgba(33, 150, 243, 0.3);
+  --zoya-shade-1: #e3f2fd;
+  --zoya-shade-2: #bbdefb;
+  --zoya-shade-3: #90caf9;
+  --zoya-shade-4: #64b5f6;
+  --zoya-shade-5: #42a5f5;
+  --zoya-shade-6: #2196f3;
+  --zoya-shade-7: #1976d2;
+  --zoya-shade-8: #1565c0;
+  --zoya-shade-9: #0d47a1;
+  --zoya-shade-10: #0a3a7a;
+  --bg-base: #f5f9ff;
+  --bg-1: #eef5fd;
+  --bg-2: #ddecfb;
+  --bg-3: #bbd9f7;
+  --bg-4: #99c6f3;
+  --bg-5: #77b3ef;
+  --bg-6: #2196f3;
+  --bg-hover: #e3f2fd;
+  --bg-active: #bbdefb;
+  --text-primary: #0d2137;
+  --text-secondary: #1a4a7a;
+  --text-disabled: #90caf9;
+  --border-base: #90caf9;
+  --border-light: #bbdefb;
+  --brand: #2196f3;
+  --brand-rgb: 33, 150, 243;
+  --brand-light: #e3f2fd;
+  --brand-hover: #1976d2;
+  --primary: #2196f3;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --fill: #eef5fd;
+  --fill-0: #ffffff;
+  --inverse: #ffffff;
+  --color-guid-agent-bar: #bbdefb;
+  --message-user-bg: #e3f2fd;
+  --message-tips-bg: #f5f9ff;
+}
+
+[data-theme='dark'] {
+  --zoya-primary: #64b5f6;
+  --zoya-primary-light: #90caf9;
+  --zoya-primary-lighter: #0a2a50;
+  --zoya-primary-dark: #2196f3;
+  --zoya-primary-rgb: 100, 181, 246;
+  --zoya-glow: 0 0 20px rgba(100, 181, 246, 0.3);
+  --zoya-shade-1: #0d2137;
+  --zoya-shade-2: #0a2a50;
+  --zoya-shade-3: #0d47a1;
+  --zoya-shade-4: #1565c0;
+  --zoya-shade-5: #1976d2;
+  --zoya-shade-6: #2196f3;
+  --zoya-shade-7: #42a5f5;
+  --zoya-shade-8: #64b5f6;
+  --zoya-shade-9: #90caf9;
+  --zoya-shade-10: #bbdefb;
+  --bg-base: #0a1628;
+  --bg-1: #0d2137;
+  --bg-2: #0a2a50;
+  --bg-3: #0d47a1;
+  --bg-4: #1565c0;
+  --bg-5: #1976d2;
+  --bg-6: #2196f3;
+  --bg-hover: #0d2137;
+  --bg-active: #0a2a50;
+  --text-primary: #bbdefb;
+  --text-secondary: #90caf9;
+  --text-disabled: #1565c0;
+  --border-base: #1565c0;
+  --border-light: #0a2a50;
+  --brand: #64b5f6;
+  --brand-rgb: 100, 181, 246;
+  --brand-light: #0a2a50;
+  --brand-hover: #2196f3;
+  --primary: #64b5f6;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --fill: #0d2137;
+  --fill-0: rgba(255, 255, 255, 0.06);
+  --inverse: #0a1628;
+  --color-guid-agent-bar: #0a2a50;
+  --message-user-bg: #0a2a50;
+  --message-tips-bg: #0d2137;
+}
+
+body {
+  font-family: 'Georgia', 'Merriweather', 'Noto Serif', serif;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.88em;
+}
+
+.message-content {
+  line-height: 1.75;
+}
+
+.message-content p {
+  margin-bottom: 0.7em;
+  text-rendering: optimizeLegibility;
+}

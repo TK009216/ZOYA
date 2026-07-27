@@ -1,0 +1,2 @@
+PC operations, file management, terminal commands, code execution.
+🚀 Deploy when: User needs a command run, file edited, code executed, or any system/file operation. Handles basic to intermediate PC tasks.

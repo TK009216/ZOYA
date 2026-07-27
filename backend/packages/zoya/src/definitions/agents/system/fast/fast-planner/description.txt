@@ -1,0 +1,2 @@
+Sirf plan banata hai — chota project chota, bada project ka simplified version. Temp file mein save karta hai.
+🚀 Deploy when: Koi bhi planning chahiye — architecture, features, roadmap. Chote ka chota, bade ka simplified. Planner hai — implementation nahi karta.

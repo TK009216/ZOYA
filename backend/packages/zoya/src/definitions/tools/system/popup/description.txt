@@ -1,0 +1,1 @@
+🪟 Interactive popup dikhata hai — 6 types: mode-suggestion ⚡, confirm ❓, info ℹ️, success ✅, error ❌, warning ⚠️. User ko kuch important batana ho, confirm karwana ho, ya mode switch suggest karna ho to popup use karo. Beautiful box-drawn UI with icons, auto-dismiss timeout, notification sounds, and persistent mode. Mode-suggestion type automatically mode switch kar deta hai.

@@ -166,15 +166,19 @@ void initLanguage();
 // Listen for language changes broadcast by the main process (from other renderers).
 // This enables real-time sync between desktop and WebUI — when one changes language,
 // the other updates immediately without requiring a restart.
-ipcBridge.systemSettings.languageChanged.on(async ({ language }) => {
-  const normalized = normalizeLanguageCode(language);
-  // Skip if already on this language (we're the one who triggered the change)
-  if (i18n.language === normalized) return;
-  await ensureAndSwitch(i18n, normalized, loadLocaleModules);
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('i18nextLng', normalized);
-  }
-});
+try {
+  ipcBridge.systemSettings.languageChanged.on(async ({ language }) => {
+    const normalized = normalizeLanguageCode(language);
+    // Skip if already on this language (we're the one who triggered the change)
+    if (i18n.language === normalized) return;
+    await ensureAndSwitch(i18n, normalized, loadLocaleModules);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('i18nextLng', normalized);
+    }
+  });
+} catch {
+  // Browser mode: no IPC bridge available
+}
 
 /**
  * Change language with lazy loading.

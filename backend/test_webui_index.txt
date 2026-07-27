@@ -1,0 +1,68 @@
+<!doctype html>
+<html data-theme="light" data-color-scheme="default">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="application-name" content="ZOYA" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ZOYA" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#4E5969" />
+    <link rel="icon" type="image/png" href="./pwa/icon-192.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./pwa/icon-180.png" />
+    <title>ZOYA</title>
+    <script>
+      // Synchronously restore theme appearance from localStorage to prevent theme flash
+      (function () {
+        try {
+          var theme = localStorage.getItem('__aionui_theme');
+          if (theme) document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      html,
+      body,
+      #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-DPpi2QXO.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/vendor-editor-Da-cIXVg.js">
+    <link rel="modulepreload" crossorigin href="./assets/vendor-react-dnzDbiC8.js">
+    <link rel="modulepreload" crossorigin href="./assets/vendor-arco-Rk8jGK5N.js">
+    <link rel="modulepreload" crossorigin href="./assets/vendor-highlight-B7ubbmip.js">
+    <link rel="modulepreload" crossorigin href="./assets/applyTheme-CGG4krud.js">
+    <link rel="stylesheet" crossorigin href="./assets/vendor-arco-DMdW430E.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-DPla6bCR.css">
+  </head>
+  <body>
+    <script>
+      // Set arco-theme on body synchronously
+      try {
+        var t = localStorage.getItem('__aionui_theme');
+        if (t) document.body.setAttribute('arco-theme', t);
+      } catch (e) {}
+    </script>
+    <div id="root"></div>
+    <script>
+      (function(){
+        if (sessionStorage.getItem('__cache_cleared')) return;
+        sessionStorage.setItem('__cache_cleared', '1');
+        if ('caches' in window) { caches.keys().then(function(ks) { ks.forEach(function(k) { caches.delete(k); }); }); }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(rs) {
+            rs.forEach(function(r) { r.unregister(); });
+            if (rs.length > 0) { setTimeout(function() { location.reload(); }, 100); }
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

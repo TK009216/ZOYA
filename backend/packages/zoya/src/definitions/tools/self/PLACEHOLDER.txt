@@ -1,0 +1,1 @@
+🔧 Self-made tools ka directory hai. ZOYA yahan apne tools define karti hai — `create-tool` se banaye, `run-self-tool` se execute. Har tool ka folder `~/.config/zoya/self/tools/{name}/` jisme `definition.json` + `description.txt` hota hai. Auto-inject hota hai Layer 2 mein. Built-in tools nahi hain — yeh ZOYA ke khud ke banaye customized tools hain.

@@ -1,0 +1,1 @@
+📺 Koi bhi content user ko dikhata hai — 17 types: image 🖼️, video 🎬, YouTube ▶️, audio 🎵, website 🌐, PDF 📄, Word 📝, Excel 📊, code 💻, table 📋, chart 📈, map 🗺️, 3D model 🧊, text, markdown, URL, file. Jab bhi user ko kuch visually dikhana ho — screenshot, code snippet, website preview, PDF, ya koi bhi media — show tool use karo.

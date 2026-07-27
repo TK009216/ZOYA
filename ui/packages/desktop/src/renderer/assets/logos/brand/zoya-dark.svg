@@ -1,30 +1,15 @@
-<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background: Very dark indigo base -->
-  <rect x="4" y="4" width="92" height="92" rx="24" fill="#0f0d23" />
-
-  <!-- Gradient Stroke Border (to simulate glow) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <defs>
-    <linearGradient id="zoyaDarkBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#818cf8;stop-opacity:1" /> <!-- Indigo 400 -->
-      <stop offset="30%" style="stop-color:#a78bfa;stop-opacity:1" /> <!-- Violet 400 -->
-      <stop offset="70%" style="stop-color:#c084fc;stop-opacity:1" /> <!-- Purple 400 -->
-      <stop offset="100%" style="stop-color:#f472b6;stop-opacity:1" /> <!-- Pink 400 -->
+    <linearGradient id="zg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4081"/>
+      <stop offset="100%" stop-color="#ce93d8"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="100" height="100" rx="24" fill="none" stroke="url(#zoyaDarkBorderGradient)" stroke-width="4" />
-
-  <!-- Custom Z Path (Ribbon effect) -->
-  <!-- M28 30 L72 30 L36 38 L64 62 L28 70 L64 62 L36 38 L28 38 Z -->
-  <path
-    d="M28 30 L72 30 L36 38 L64 62 L28 70 L64 62 L36 38 L28 38 Z"
-    stroke="#e0e7ff"
-    stroke-width="10"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    fill="none"
-  />
-
-  <!-- Glow Dot Accent -->
-  <circle cx="76" cy="76" r="5" fill="#ddd6fe" /> <!-- Purple 200 -->
-  <circle cx="76" cy="76" r="2" fill="#e0f2f1" /> <!-- Teal 50 -->
+  <circle cx="100" cy="100" r="90" fill="url(#zg)" opacity="0.1"/>
+  <circle cx="100" cy="100" r="70" fill="url(#zg)" opacity="0.2"/>
+  <circle cx="100" cy="100" r="50" fill="url(#zg)" opacity="0.4"/>
+  <path d="M65 65 L135 65 L65 135 L135 135" stroke="url(#zg)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="140" cy="55" r="4" fill="#ff4081"/>
+  <circle cx="155" cy="80" r="3" fill="#ce93d8"/>
+  <circle cx="148" cy="42" r="2" fill="#ffab40"/>
 </svg>

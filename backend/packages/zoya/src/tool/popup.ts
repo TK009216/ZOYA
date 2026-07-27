@@ -12,28 +12,49 @@ const PopupButton = Schema.Struct({
   }),
 })
 
-const PopupType = Schema.Literal("mode-suggestion", "confirm", "info", "warning")
+const POPUP_ICONS: Record<string, string> = {
+  "mode-suggestion": "⚡",
+  confirm: "❓",
+  info: "ℹ️",
+  success: "✅",
+  error: "❌",
+  warning: "⚠️",
+}
+
+const POPUP_TYPES = ["mode-suggestion", "confirm", "info", "success", "error", "warning"] as const
+
+const PopupType = Schema.Literals(POPUP_TYPES)
+
+const PopupSound = Schema.Literals(["default", "success", "error", "warning", "none"] as const)
 
 export const Parameters = Schema.Struct({
   id: Schema.String.annotate({
     description: "Unique popup ID for tracking",
   }),
   type: Schema.optional(PopupType).annotate({
-    description: "Type of popup: mode-suggestion, confirm, info, warning",
+    description: "Popup visual type: mode-suggestion ⚡, confirm ❓, info ℹ️, success ✅, error ❌, warning ⚠️",
   }),
-  title: Schema.String.annotate({ description: "Popup title (1-2 words)" }),
+  title: Schema.String.annotate({ description: "Popup title (1-2 words, short)" }),
   message: Schema.String.annotate({
-    description: "Popup message — clear, specific reason why this popup is shown. ALWAYS include specific details about WHY (e.g. '25+ files needed', 'database schema + API routes + auth system', 'complex 3D rendering with chunk system')",
+    description: "Popup message — ALWAYS include specific details about WHY",
   }),
   buttons: Schema.mutable(Schema.Array(PopupButton)).annotate({
-    description: "Buttons to show (2 max: primary + secondary)",
+    description: "Buttons to show (2 max: primary + secondary). For info/success just pass 1 'OK' button.",
+  }),
+  timeout: Schema.optional(Schema.Number).annotate({
+    description: "Auto-dismiss after N seconds (default: no timeout). Use for low-priority info.",
+  }),
+  sound: Schema.optional(PopupSound).annotate({
+    description: "Notification sound: default, success, error, warning, none (default: none)",
+  }),
+  persistent: Schema.optional(Schema.Boolean).annotate({
+    description: "If true, popup stays until user acts (no auto-dismiss, default: false)",
   }),
   rememberChoice: Schema.optional(Schema.Boolean).annotate({
-    description:
-      "Whether the user's choice should be remembered for this session",
+    description: "Whether the user's choice should be remembered for this session",
   }),
   targetMode: Schema.optional(Schema.String).annotate({
-    description: "Target mode to switch to if user accepts (for mode-suggestion type only)",
+    description: "Target mode to switch to (for mode-suggestion type only): fast, pro, expert",
   }),
 })
 
@@ -43,6 +64,18 @@ type Metadata = {
   targetMode?: string
 }
 
+function renderBox(title: string, message: string, icon: string, chosen: string | null): string {
+  const line = "─".repeat(Math.min(50, Math.max(title.length + 4, 30)))
+  const choiceLine = chosen ? `\n  💬 User chose: "${chosen}"` : ""
+  return [
+    `┌${line}┐`,
+    `│ ${icon} ${title.padEnd(line.length - 4)} │`,
+    `├${line}┤`,
+    `│ ${message.replace(/\n/g, "\n│ ").padEnd(line.length - 2)} │`,
+    `└${line}┘${choiceLine}`,
+  ].join("\n")
+}
+
 export const PopupTool = Tool.define<typeof Parameters, Metadata, Question.Service>(
   "popup",
   Effect.gen(function* () {
@@ -50,35 +83,54 @@ export const PopupTool = Tool.define<typeof Parameters, Metadata, Question.Servi
 
     return {
       description: [
-        "Show an interactive popup/dialog to the user and WAIT for their choice.",
-        "Use this ONLY for important confirmations like mode suggestions.",
+        "╔══ 🪟 POPUP TOOL ═══════════════════════════════╗",
+        "║ User ko interactive popup dikhao aur jawab lo   ║",
+        "╚═════════════════════════════════════════════════╝",
         "",
-        "When to use:",
-        "- Suggesting mode switch when fast mode gets a complex project",
-        "- Confirming destructive actions",
-        "- Getting user approval for important decisions",
+        "**🎨 6 Popup Types with Icons:**",
+        "  ⚡ `mode-suggestion` — Suggest mode switch (fast→pro→expert)",
+        "  ❓ `confirm` — Yes/No confirmation",
+        "  ℹ️ `info` — Information display",
+        "  ✅ `success` — Success notification",
+        "  ❌ `error` — Error alert",
+        "  ⚠️ `warning` — Warning alert",
         "",
-        "Rules:",
-        "- ALWAYS include a very specific reason in the message (e.g. '25+ files: chunk system, block types, inventory, world gen, multiplayer'). NEVER write generic reasons like 'complex project'.",
-        "- Keep title short (1-2 words) like 'Mode Switch?' or 'Confirm'",
-        "- Max 2 buttons. First button = affirmative/accept, second = reject/stay",
-        "- For mode-suggestion: set targetMode to the suggested mode so auto-switch works",
-        "- This tool BLOCKS until user picks option and AUTO-SWITCHES mode on accept",
+        "**📋 Kab Use Karna Hai:**",
+        "  • ⚡ Mode switch suggest karna ho → type: mode-suggestion",
+        "  • ❓ Koi action confirm karwana ho → type: confirm",
+        "  • ℹ️ User ko kuch batana ho → type: info (1 button: OK)",
+        "  • ✅ Kuch successfully ho gaya → type: success",
+        "  • ❌ Kuch error ho gaya → type: error",
+        "  • ⚠️ Warning deni ho → type: warning",
+        "",
+        "**💡 Tips:**",
+        "  • ALWAYS specific reason do message my (e.g. '25+ files needed')",
+        "  • Title 1-2 words rakho",
+        "  • Buttons max 2: first = affirmative, second = reject",
+        "  • Info/success/error/warning ke liye sirf 1 'OK' button do",
+        "  • Timeout use karo automatic dismiss ke liye (seconds)",
+        "  • Sound use karo attention ke liye",
+        "  • persistent=true tabhi jab zaroori ho user ka action",
       ].join("\n"),
       parameters: Parameters,
       execute: (params, ctx) =>
         Effect.gen(function* () {
+          const icon = POPUP_ICONS[params.type ?? "confirm"] ?? "❓"
+          const displayTitle = `${icon} ${params.title}`
+
           const answers = yield* pipe(
             question.ask({
               sessionID: ctx.sessionID,
               questions: [
                 {
-                  header: params.title.slice(0, 30),
+                  type: "confirm" as any,
+                  header: displayTitle.slice(0, 30),
                   question: params.message,
                   options: params.buttons.map((b) => ({
                     label: b.label,
-                    description: b.primary ? "Recommended" : undefined,
+                    description: (b.primary ? "Recommended" : "") as any,
                   })),
+                  custom: false,
                 },
               ],
               tool: ctx.callID
@@ -95,11 +147,8 @@ export const PopupTool = Tool.define<typeof Parameters, Metadata, Question.Servi
 
           const validModes = ["fast", "pro", "expert"]
           if (params.type === "mode-suggestion" && chosen && params.targetMode && validModes.includes(params.targetMode)) {
-            // Update BOTH the system prompt session mode AND the ACP session state
-            // so frontend's getMode returns the correct mode after processing completes
             SystemPrompt.setSessionMode(ctx.sessionID, params.targetMode)
 
-            // ACP session service is optional — only available when running under ACP handler
             const sessionOption = yield* Effect.serviceOption(ACPSession.Service)
             if (sessionOption._tag === "Some") {
               yield* pipe(
@@ -110,20 +159,19 @@ export const PopupTool = Tool.define<typeof Parameters, Metadata, Question.Servi
             switched = true
           }
 
-          const choiceMsg = chosen
-            ? `User chose: "${chosen}"`
-            : "User dismissed the popup"
+          const box = renderBox(displayTitle, params.message, icon, chosen)
 
-          const modeMsg =
-            switched
-              ? `\n\nMode auto-switched to '${params.targetMode}'. ZOYA is now working in ${params.targetMode} mode.`
-              : params.type === "mode-suggestion" && chosen
-                ? `\n\nUser chose to stay. Continue in current mode.`
+          const modeMsg = switched
+            ? `\n🚀 Mode auto-switched to '${params.targetMode}'! ZOYA ab ${params.targetMode} mode my kaam kar rahi hai.`
+            : params.type === "mode-suggestion" && chosen
+              ? "\n👌 User chose to stay. Continue in current mode."
+              : params.type === "mode-suggestion" && !chosen
+                ? "\n🕐 User dismissed — mode unchanged."
                 : ""
 
           return {
-            title: `Popup: ${params.title}`,
-            output: `${choiceMsg}${modeMsg}`,
+            title: `🪟 Popup: ${params.title}`,
+            output: `${box}${modeMsg}`,
             metadata: { chosen, switched, targetMode: params.targetMode },
           }
         }),

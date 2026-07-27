@@ -179,14 +179,14 @@
     },
     "packages/desktop": {
       "name": "@zoya/desktop",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "@zoya/web-host": "*",
       },
     },
     "packages/shared-scripts": {
       "name": "@zoya/shared-scripts",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "devDependencies": {
         "@types/node": "^22.10.2",
         "vitest": "^4.1.0",
@@ -210,9 +210,10 @@
     },
     "packages/web-host": {
       "name": "@zoya/web-host",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "minimatch": "3.1.5",
+        "path-is-inside": "^1.0.2",
         "serve-handler": "^6.1.5",
       },
       "devDependencies": {

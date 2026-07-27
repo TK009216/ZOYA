@@ -180,6 +180,12 @@ const docRoute = HttpRouter.use((router) => router.add("GET", "/doc", () => Effe
   Layer.provide(authOnlyRouterLayer),
 )
 
+const apiNotFound = HttpRouter.use((router) =>
+  router.add("*", "/api/*", () =>
+    Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "Not Found" }, { status: 404 })),
+  ),
+)
+
 const uiRoute = HttpRouter.use((router) =>
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
@@ -266,6 +272,7 @@ export function createRoutes(
     instanceRoutes,
     serverRoutes,
     docRoute,
+    apiNotFound,
     uiRoute,
   ).pipe(
     Layer.provide([

@@ -6,11 +6,19 @@
  * ZOYA Agent Groups Settings — manage agent groups and their agents.
  */
 
-import { Button, Input, Message, Modal, Select, Tag, Card, Collapse, Space, Typography } from '@arco-design/web-react';
-import { AddOne, Delete, Edit, SettingConfig, ThumbsUp } from '@icon-park/react';
+import { Button, Input, Message, Modal, Select, Tag, Card, Collapse, Space, Switch, Typography } from '@arco-design/web-react';
+import { AddOne, Delete, Edit, SettingConfig, ThumbsUp, Theme } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { configService } from '@/common/config/configService';
+import { useThemeContext } from '@renderer/hooks/context/ThemeContext';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
+
+const MODE_THEME_MAP: Record<string, string> = {
+  fast: 'zoya-fast',
+  pro: 'zoya-pro',
+  expert: 'zoya-expert',
+};
 
 interface GroupAgent {
   name: string;
@@ -72,6 +80,8 @@ const AgentGroupsSettings: React.FC = () => {
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDesc, setNewGroupDesc] = useState('');
+  const [autoSwitch, setAutoSwitch] = useState(() => configService.get('theme.autoSwitchWithMode') ?? true);
+  const { selectTheme } = useThemeContext();
   const didFetch = useRef(false);
 
   const fetchConfig = useCallback(async () => {
@@ -122,7 +132,18 @@ const AgentGroupsSettings: React.FC = () => {
     const newConfig = { ...config, currentMode: mode as 'fast' | 'pro' | 'expert' };
     setConfig(newConfig);
     saveMode(mode);
-  }, [config, saveMode]);
+    if (autoSwitch && MODE_THEME_MAP[mode]) {
+      selectTheme(MODE_THEME_MAP[mode]);
+    }
+  }, [config, saveMode, autoSwitch, selectTheme]);
+
+  const handleAutoSwitchChange = useCallback((checked: boolean) => {
+    setAutoSwitch(checked);
+    configService.setLocal('theme.autoSwitchWithMode', checked);
+    if (checked && MODE_THEME_MAP[config.currentMode]) {
+      selectTheme(MODE_THEME_MAP[config.currentMode]);
+    }
+  }, [config.currentMode, selectTheme]);
 
   const handleAddGroup = useCallback(() => {
     if (!newGroupName.trim()) {
@@ -219,6 +240,17 @@ const AgentGroupsSettings: React.FC = () => {
             style={{ width: 120 }}
           />
           <Tag color={MODE_COLORS[config.currentMode]}>{config.currentMode.toUpperCase()}</Tag>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
+          <Theme />
+          <Typography.Text>Auto-switch theme with mode:</Typography.Text>
+          <Switch checked={autoSwitch} onChange={handleAutoSwitchChange} />
+          <Typography.Text type='secondary' style={{ fontSize: 12 }}>
+            {autoSwitch
+              ? `Current: ${config.currentMode.toUpperCase()} → ${MODE_THEME_MAP[config.currentMode] ?? '—'}`
+              : 'Theme stays independent of mode'
+            }
+          </Typography.Text>
         </div>
       </Card>
 

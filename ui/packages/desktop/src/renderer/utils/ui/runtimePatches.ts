@@ -167,4 +167,4 @@ export const applyRuntimePatches = () => {
   patchConsole();
 };
 
-applyRuntimePatches();
+try { applyRuntimePatches(); } catch { /* Some environments may restrict monkey-patching */ }

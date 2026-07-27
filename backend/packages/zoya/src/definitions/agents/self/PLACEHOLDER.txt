@@ -1,0 +1,1 @@
+🤖 Self-made agents ka directory hai. ZOYA yahan apne specialist agents define karti hai — `create-agent` se banaye, task tool se dispatch. Har agent ka folder `~/.config/zoya/self/agents/{mode}/{name}/` jisme `definition.json` + `description.txt` hota hai. Auto-inject hota hai Layer 2 system prompt mein mode-wise. 4 modes available: fast, pro, expert, expert-2.

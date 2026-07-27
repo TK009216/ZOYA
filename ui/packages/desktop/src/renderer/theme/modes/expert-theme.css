@@ -1,0 +1,23 @@
+:root {
+  --zoya-primary: #ff9800;
+  --zoya-primary-rgb: 255, 152, 0;
+  --zoya-primary-light: #ffb74d;
+  --zoya-primary-dark: #f57c00;
+  --zoya-glow: 0 0 20px rgba(255, 152, 0, 0.3);
+  --zoya-glow-subtle: 0 0 8px rgba(255, 152, 0, 0.15);
+  --zoya-bg: rgba(255, 152, 0, 0.05);
+  --zoya-border: rgba(255, 152, 0, 0.2);
+  --zoya-accent: #ffb74d;
+}
+
+[data-theme='dark'] {
+  --zoya-primary: #ffb74d;
+  --zoya-primary-rgb: 255, 183, 77;
+  --zoya-primary-light: #ffcc80;
+  --zoya-primary-dark: #ff9800;
+  --zoya-glow: 0 0 20px rgba(255, 183, 77, 0.3);
+  --zoya-glow-subtle: 0 0 8px rgba(255, 183, 77, 0.15);
+  --zoya-bg: rgba(255, 152, 0, 0.08);
+  --zoya-border: rgba(255, 183, 77, 0.2);
+  --zoya-accent: #ffb74d;
+}

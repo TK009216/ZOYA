@@ -83,8 +83,8 @@ export const MODEL_PLATFORMS: PlatformConfig[] = [
 
   // 预设供应商（按字母顺序排列）
   {
-    name: 'OpenCode',
-    value: 'OpenCode',
+    name: 'ZOYA',
+    value: 'zoya',
     logo: buildLogoAssetUrl('tools/coding/opencode-light.svg'),
     platform: 'custom',
     base_url: 'https://api.opencode.ai/v1',

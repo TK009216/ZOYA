@@ -43,8 +43,11 @@ cd "$ZOYA_DIR/ui"
 bun install
 
 echo "[setup] Installing backend dependencies..."
-cd "$ZOYA_DIR/backend/packages/zoya"
+cd "$ZOYA_DIR/backend"
 bun install
+
+# Make backend launcher executable too
+chmod +x "$ZOYA_DIR/backend/zoya"
 
 echo
 echo "============================================"

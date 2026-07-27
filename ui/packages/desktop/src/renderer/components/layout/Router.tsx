@@ -14,6 +14,7 @@ const AgentGroupsSettings = React.lazy(() => import('@renderer/pages/settings/Ag
 const SystemSettings = React.lazy(() => import('@renderer/pages/settings/SystemSettings'));
 const WebuiSettings = React.lazy(() => import('@renderer/pages/settings/WebuiSettings'));
 const PetSettings = React.lazy(() => import('@renderer/pages/settings/PetSettings'));
+const ApiVerification = React.lazy(() => import('@renderer/pages/settings/ApiVerification'));
 const ExtensionSettingsPage = React.lazy(() => import('@renderer/pages/settings/ExtensionSettingsPage'));
 const LoginPage = React.lazy(() => import('@renderer/pages/login'));
 const ComponentsShowcase = React.lazy(() => import('@renderer/pages/TestShowcase'));
@@ -59,6 +60,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             path='/team/:id'
             element={TEAM_MODE_ENABLED ? withRouteFallback(TeamIndex) : <Navigate to='/guid' replace />}
           />
+          <Route path='/settings/api-verification' element={withRouteFallback(ApiVerification)} />
           <Route path='/settings/model' element={withRouteFallback(ZoyaModelSettings)} />
           <Route path='/settings/agent-groups' element={withRouteFallback(AgentGroupsSettings)} />
           <Route path='/settings/assistants' element={withRouteFallback(AssistantSettings)} />

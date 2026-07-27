@@ -29,6 +29,7 @@ export const BUILTIN_TAB_IDS = [
   'agent',
   'agent-groups',
   'model',
+  'api-verification',
   'assistants',
   'capabilities',
   'appearance',
@@ -85,6 +86,12 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
     // Build builtin items
     const builtinMap: Record<string, SiderItem> = {
       model: { id: 'model', label: t('settings.model'), icon: <LinkCloud />, path: 'model' },
+      'api-verification': {
+        id: 'api-verification',
+        label: '🔐 API Verification',
+        icon: <Speed />,
+        path: 'api-verification',
+      },
       assistants: {
         id: 'assistants',
         label: t('settings.assistants', { defaultValue: 'Assistants' }),

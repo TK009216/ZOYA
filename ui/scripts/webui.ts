@@ -48,6 +48,9 @@ const getFlag = (name: string): string | undefined => {
   return next && !next.startsWith('--') ? next : undefined;
 };
 
+const skipBackend = has('--skip-backend');
+const backendPort = parseInt(getFlag('--backend-port') || '', 10) || 25810;
+
 /**
  * Resolve the directory where aioncore persists its SQLite DB.
  *
@@ -216,12 +219,21 @@ async function main(): Promise<void> {
   // This keeps `bun run webui` fully self-contained on hosts without AionUi.app.
   const workDir = resolveBackendDataDir();
   const staticDir = resolveStaticDir();
-  const backendBin = resolveBackendBinary();
+
+  let backendOpts;
+  if (skipBackend) {
+    backendOpts = { kind: 'useExistingBackend', port: backendPort } as const;
+    console.log(`[webui] backend     : external (port ${backendPort})`);
+  } else {
+    const backendBin = resolveBackendBinary();
+    backendOpts = { kind: 'ownBackend', resolveBackend: () => backendBin } as const;
+    console.log('[webui] backend bin:', backendBin);
+  }
+
   const logDir = process.env.AIONUI_LOG_DIR ?? path.join(workDir, 'logs');
 
   console.log('[webui] work dir   :', workDir);
   console.log('[webui] static dir :', staticDir);
-  console.log('[webui] backend bin:', backendBin);
   console.log(`[webui] launching  : port=${port} allowRemote=${allowRemote}`);
 
   const handle = await startWebHost({
@@ -236,22 +248,16 @@ async function main(): Promise<void> {
     allowRemote,
     dataDir: workDir,
     logDir,
-    // Surface the same work dir on /api/system/info so the browser UI shows
-    // where standalone webui is actually persisting data. Without this the
-    // backend inherits process.env and may report the parent shell's cwd.
     dirs: {
       cacheDir: workDir,
       workDir: workDir,
       logDir,
     },
-    backend: {
-      kind: 'ownBackend',
-      resolveBackend: () => backendBin,
-    },
+    backend: backendOpts,
   });
 
   console.log('');
-  console.log('AionUi WebUI is ready');
+  console.log('ZOYA WebUI is ready');
   console.log(`  Local  : ${handle.localUrl}`);
   if (handle.networkUrl) console.log(`  Network: ${handle.networkUrl}`);
 

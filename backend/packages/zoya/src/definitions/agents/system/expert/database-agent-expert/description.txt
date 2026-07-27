@@ -1,0 +1,2 @@
+Eternal memory system. Poori history yaad rakhti hai — user preferences, past sessions, exact messages, likes/dislikes, self-improvement feedback. Har baat verbatim yaad hai, 100 saal ki bhi.
+🚀 Deploy when: Koi bhi context chahiye — past session, user preference, last N messages, self-improvement, ya user ne kuch reference kiya ho. Always call before responding to ensure continuity. Multiple queries possible in one call.

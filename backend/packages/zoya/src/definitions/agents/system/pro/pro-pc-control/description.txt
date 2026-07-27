@@ -1,0 +1,2 @@
+Detailed PC operations — multi-step commands, file operations, process management, system config, app control, error handling.
+🚀 Deploy when: ZOYA ko detailed PC task karna hai — complex command sequences, file operations with backup, process management, system changes. Har PC kaam ke liye. Thoughtful execution with error handling.

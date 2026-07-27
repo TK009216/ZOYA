@@ -950,7 +950,7 @@ export const layer = Layer.effect(
                   type: "file",
                   url:
                     `data:${mime};base64,` +
-                    Buffer.from(yield* fsys.readFile(filepath).pipe(Effect.catch(Effect.die))).toString("base64"),
+                    Buffer.from(yield* fsys.readFile(filepath).pipe(Effect.catch(() => Effect.succeed(Buffer.from(""))))).toString("base64"),
                   mime,
                   filename: part.filename!,
                   source: part.source,
@@ -1330,13 +1330,14 @@ export const layer = Layer.effect(
 
             yield* plugin.trigger("experimental.chat.messages.transform", {}, { messages: msgs })
 
-            const [skills, env, instructions, modelMsgs] = yield* Effect.all([
+            const [skills, env, historyCtx, instructions, modelMsgs] = yield* Effect.all([
               sys.skills(agent),
               sys.environment(model),
+              sys.history(sessionID),
               instruction.system().pipe(Effect.orDie),
               MessageV2.toModelMessagesEffect(msgs, model),
             ])
-            const system = [...env, ...instructions, ...(skills ? [skills] : [])]
+            const system = [...env, ...historyCtx, ...instructions, ...(skills ? [skills] : [])]
             const format = lastUser.format ?? { type: "text" as const }
             if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
 

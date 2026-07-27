@@ -1,0 +1,2 @@
+Detailed plan banata hai — chote mein features/improvements add karta hai, bade mein almost complete plan deta hai. Researcher use karta hai research + verify ke liye.
+🚀 Deploy when: Detailed planning chahiye — architecture, features, improvements, timeline. Researcher se research + verify karaata hai.
