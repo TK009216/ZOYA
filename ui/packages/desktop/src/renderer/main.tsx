@@ -93,6 +93,7 @@ import { repairAllCronJobTimeZonesOnce } from '@renderer/pages/cron/repairCronJo
 import Layout from './components/layout/Layout';
 import Router from './components/layout/Router';
 import Sider from './components/layout/Sider';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './hooks/context/AuthContext';
 import { ConversationHistoryProvider } from './hooks/context/ConversationHistoryContext';
 import HOC from './utils/ui/HOC';
@@ -392,7 +393,9 @@ if (backendStartupFailure && shouldShowBackendStartupFailureDialog) {
 } else {
   root.render(
     <AppProviders>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </AppProviders>
   );
 }

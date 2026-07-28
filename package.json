@@ -1,8 +1,29 @@
 {
   "name": "zoya-monorepo",
+  "version": "1.0.0",
+  "description": "ZOYA AI Assistant — Unified Backend + UI",
   "private": true,
   "type": "module",
+  "packageManager": "bun@1.2.0",
+  "engines": {
+    "node": ">=22 <25",
+    "bun": ">=1.2.0"
+  },
+  "workspaces": [
+    "backend",
+    "ui"
+  ],
   "scripts": {
-    "build-exe": "bun run setups/build-exe.ts"
+    "install:all": "bun install && cd backend && bun install && cd ../ui && bun install",
+    "dev": "concurrently \"bun run dev:backend\" \"bun run dev:ui\"",
+    "dev:backend": "cd backend && bun run dev",
+    "dev:ui": "cd ui && bun run webui",
+    "build": "bun run build:ui && bun run build:backend",
+    "build:backend": "cd backend && bun run build",
+    "build:ui": "cd ui && bun run package",
+    "start": "cd backend && bun run zoya.bat",
+    "start:ui": "cd ui && bun run webui",
+    "test": "echo 'Run tests in individual packages'",
+    "clean": "rm -rf backend/node_modules ui/node_modules backend/packages/*/node_modules ui/packages/*/node_modules"
   }
 }

@@ -1,12 +1,11 @@
-/// <reference path="../env.d.ts" />
 import { tool } from "@opencode-ai/plugin"
 
 const TEAM = {
-  tui: ["kommander", "simonklee"],
-  desktop_web: ["Hona", "Brendonovich"],
-  core: ["jlongster", "rekram1-node", "nexxeln", "kitlangton", "starptech"],
-  inference: ["fwang", "MrMushrooooom", "starptech"],
-  windows: ["Hona"],
+  tui: ["zoya-tui"],
+  desktop_web: ["zoya-web"],
+  core: ["zoya-core"],
+  inference: ["zoya-inference"],
+  windows: ["zoya-windows"],
 } as const
 
 function pick<T>(items: readonly T[]) {
@@ -36,9 +35,11 @@ async function githubFetch(endpoint: string, options: RequestInit = {}) {
 }
 
 export default tool({
-  description: `Use this tool to assign a GitHub issue.
+  description: `Assign a ZOYA GitHub issue to a team.
 
-Provide the team that should own the issue. This tool picks a random assignee from that team and does not apply labels.`,
+Provide the team that should own the issue. This tool picks a random assignee from that team.
+
+Available teams: tui, desktop_web, core, inference, windows`,
   args: {
     team: tool.schema
       .enum(Object.keys(TEAM) as [keyof typeof TEAM, ...(keyof typeof TEAM)[]])
@@ -46,8 +47,8 @@ Provide the team that should own the issue. This tool picks a random assignee fr
   },
   async execute(args) {
     const issue = getIssueNumber()
-    const owner = "anomalyco"
-    const repo = "opencode"
+    const owner = "TK009216"
+    const repo = "ZOYA"
     const assignee = pick(TEAM[args.team])
 
     await githubFetch(`/repos/${owner}/${repo}/issues/${issue}/assignees`, {

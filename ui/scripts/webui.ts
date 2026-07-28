@@ -24,7 +24,16 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Database } from 'bun:sqlite';
+let Database: any;
+try {
+  Database = require('bun:sqlite').Database;
+} catch {
+  try {
+    Database = require('better-sqlite3');
+  } catch {
+    console.warn('[webui] No SQLite driver available. Some features may not work.');
+  }
+}
 import { startWebHost } from '@zoya/web-host';
 import { openBrowserUrl, shouldAutoOpenBrowser } from '../packages/web-cli/src/browser.ts';
 
@@ -134,13 +143,32 @@ function runPackageIfNeeded(): void {
   if (has('--no-build')) return;
   if (parseBoolean(process.env.AIONUI_NO_BUILD)) return;
   if (process.env.AIONUI_STATIC_DIR) return;
-  console.log('[webui] running "bun run package" to refresh out/renderer (pass --no-build to skip)...');
+  const outDir = path.join(repoRoot, 'out', 'renderer');
+  if (fs.existsSync(path.join(outDir, 'index.html'))) {
+    console.log('[webui] Renderer already built. Use --no-build to skip.');
+    return;
+  }
+  console.log('[webui] Building renderer (pass --no-build to skip)...');
   const start = Date.now();
-  execSync('bun run package', { cwd: repoRoot, stdio: 'inherit' });
-  console.log(`[webui] package finished in ${((Date.now() - start) / 1000).toFixed(1)}s`);
+  try {
+    execSync('bun run package', { cwd: repoRoot, stdio: 'inherit' });
+  } catch (e) {
+    console.error('[webui] Build failed. Trying fallback...');
+    try {
+      execSync('bunx vite build --config packages/desktop/electron.vite.config.ts', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: { ...process.env, NODE_ENV: 'production' }
+      });
+    } catch (e2) {
+      console.error('[webui] Fallback build also failed. Please build manually: bun run package');
+      process.exit(1);
+    }
+  }
+  console.log(`[webui] Build finished in ${((Date.now() - start) / 1000).toFixed(1)}s`);
 }
 
-function resolveBackendBinary(): string {
+function resolveBackendBinary(): string | null {
   if (process.env.AIONUI_BACKEND_BIN) return process.env.AIONUI_BACKEND_BIN;
 
   const bundledBase = process.env.AIONUI_BACKEND_BUNDLED_DIR ?? path.join(repoRoot, 'resources', 'bundled-aioncore');
@@ -156,9 +184,9 @@ function resolveBackendBinary(): string {
     // fall through
   }
 
-  throw new Error(
-    `Cannot find "${BACKEND_BINARY}". Set AIONUI_BACKEND_BIN, put it on PATH, or place it at ${bundled}.`
-  );
+  console.warn(`[webui] WARNING: Cannot find "${BACKEND_BINARY}". Backend features will be unavailable.`);
+  console.warn(`[webui] Set AIONUI_BACKEND_BIN or place ${BACKEND_BINARY} on PATH.`);
+  return null;
 }
 
 /**
@@ -203,6 +231,22 @@ async function fetchAdminUsername(backendPort: number): Promise<string> {
   }
 }
 
+async function waitForBackend(port: number, maxRetries = 30): Promise<boolean> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/api/health`, {
+        signal: AbortSignal.timeout(2000)
+      });
+      if (res.ok) return true;
+    } catch {
+      // Not ready yet
+    }
+    console.log(`[webui] Waiting for backend... (${i + 1}/${maxRetries})`);
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  return false;
+}
+
 async function main(): Promise<void> {
   augmentPathWithNvm();
   runPackageIfNeeded();
@@ -214,9 +258,6 @@ async function main(): Promise<void> {
     openFlag: has('--open'),
     noOpenFlag: has('--no-open'),
   });
-  // One working dir for the whole standalone webui: backend SQLite and chat
-  // history live here. Admin credentials live in the backend's users table.
-  // This keeps `bun run webui` fully self-contained on hosts without AionUi.app.
   const workDir = resolveBackendDataDir();
   const staticDir = resolveStaticDir();
 
@@ -226,6 +267,10 @@ async function main(): Promise<void> {
     console.log(`[webui] backend     : external (port ${backendPort})`);
   } else {
     const backendBin = resolveBackendBinary();
+    if (backendBin === null) {
+      console.error('[webui] Backend binary not found. Cannot start backend.');
+      process.exit(1);
+    }
     backendOpts = { kind: 'ownBackend', resolveBackend: () => backendBin } as const;
     console.log('[webui] backend bin:', backendBin);
   }
@@ -255,6 +300,14 @@ async function main(): Promise<void> {
     },
     backend: backendOpts,
   });
+
+  if (!skipBackend) {
+    const backendReady = await waitForBackend(handle.backendPort);
+    if (!backendReady) {
+      console.error('[webui] Backend failed to start. Check logs.');
+      process.exit(1);
+    }
+  }
 
   console.log('');
   console.log('ZOYA WebUI is ready');
@@ -366,7 +419,7 @@ async function main(): Promise<void> {
     // Patch DB to promote ZOYA from custom → builtin (detected list)
     if (zoyaId) {
       try {
-        const dbPath = path.join(workDir, 'aionui-backend.db');
+        const dbPath = path.join(workDir, 'zoya-backend.db');
         if (fs.existsSync(dbPath)) {
           const db = new Database(dbPath, { readonly: false });
           if (zoyaId && typeof zoyaId === 'string' && zoyaId.length > 0) {

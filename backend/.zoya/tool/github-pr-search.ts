@@ -1,5 +1,6 @@
-/// <reference path="../env.d.ts" />
 import { tool } from "@opencode-ai/plugin"
+import { execSync } from "child_process"
+
 async function githubFetch(endpoint: string, options: RequestInit = {}) {
   const response = await fetch(`https://api.github.com${endpoint}`, {
     ...options,
@@ -22,24 +23,18 @@ interface PR {
 }
 
 export default tool({
-  description: `Use this tool to search GitHub pull requests by title and description.
+  description: `Search GitHub pull requests by title and description for the ZOYA repository.
 
-This tool searches PRs in the anomalyco/opencode repository and returns LLM-friendly results including:
-- PR number and title
-- Author
-- State (open/closed/merged)
-- Labels
-- Description snippet
-
-Use the query parameter to search for keywords that might appear in PR titles or descriptions.`,
+Use this tool to check for duplicate or related PRs before creating a new one.
+Searches the TK009216/ZOYA repository.`,
   args: {
     query: tool.schema.string().describe("Search query for PR titles and descriptions"),
     limit: tool.schema.number().describe("Maximum number of results to return").default(10),
     offset: tool.schema.number().describe("Number of results to skip for pagination").default(0),
   },
   async execute(args) {
-    const owner = "anomalyco"
-    const repo = "opencode"
+    const owner = "TK009216"
+    const repo = "ZOYA"
 
     const page = Math.floor(args.offset / args.limit) + 1
     const searchQuery = encodeURIComponent(`${args.query} repo:${owner}/${repo} type:pr state:open`)
@@ -48,17 +43,17 @@ Use the query parameter to search for keywords that might appear in PR titles or
     )
 
     if (result.total_count === 0) {
-      return `No PRs found matching "${args.query}"`
+      return `No PRs found matching "${args.query}" in ZOYA repository.`
     }
 
     const prs = result.items as PR[]
 
     if (prs.length === 0) {
-      return `No other PRs found matching "${args.query}"`
+      return `No other PRs found matching "${args.query}" in ZOYA repository.`
     }
 
     const formatted = prs.map((pr) => `${pr.title}\n${pr.html_url}`).join("\n\n")
 
-    return `Found ${result.total_count} PRs (showing ${prs.length}):\n\n${formatted}`
+    return `Found ${result.total_count} PR(s) in ZOYA repository (showing ${prs.length}):\n\n${formatted}`
   },
 })

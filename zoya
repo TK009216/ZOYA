@@ -1,3 +1,125 @@
 #!/usr/bin/env bash
-cd "$(dirname "$0")/backend" && exec ./zoya "$@"
-
+set -e
+ZOYA_VER="1.0.0"
+ZOYA_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKEND_DIR="$ZOYA_DIR/backend"
+UI_DIR="$ZOYA_DIR/ui"
+echo "[ZOYA] ========================================"
+echo "[ZOYA] ZOYA AI Assistant v${ZOYA_VER}"
+echo "[ZOYA] ========================================"
+echo
+# Check Bun
+if ! command -v bun &> /dev/null; then
+echo "[ERROR] Bun not found. Please run ./setup.sh first."
+exit 1
+fi
+BUN_VER=$(bun --version)
+echo "[ZOYA] Bun v${BUN_VER}"
+# Check backend exists
+if [ ! -d "$BACKEND_DIR" ]; then
+echo "[ERROR] Backend directory not found at: $BACKEND_DIR"
+echo "[ERROR] Please run ./setup.sh first."
+exit 1
+fi
+# Check UI exists
+if [ ! -d "$UI_DIR" ]; then
+echo "[ERROR] UI directory not found at: $UI_DIR"
+echo "[ERROR] Please run ./setup.sh first."
+exit 1
+fi
+# Create logs directory
+mkdir -p "$ZOYA_DIR/logs"
+# Function to kill process on port
+kill_port() {
+local port=$1
+local pid=""
+# Try lsof first, then fuser, then ss
+if command -v lsof &> /dev/null; then
+pid=$(lsof -ti tcp:$port 2>/dev/null || true)
+elif command -v fuser &> /dev/null; then
+pid=$(fuser $port/tcp 2>/dev/null | tr -d ' ' || true)
+elif command -v ss &> /dev/null; then
+pid=$(ss -tlnp | grep ":$port " | grep -oP 'pid=\K[0-9]+' | head -1 || true)
+fi
+if [ -n "$pid" ] && [ "$pid" != " " ]; then
+echo "[ZOYA] Stopping process $pid on port $port..."
+kill -TERM "$pid" 2>/dev/null || true
+sleep 1
+kill -KILL "$pid" 2>/dev/null || true
+fi
+}
+# Clean up old processes
+echo "[ZOYA] Cleaning up old processes..."
+kill_port 25809
+kill_port 25810
+sleep 2
+# Check if backend dependencies exist
+if [ ! -d "$BACKEND_DIR/packages/zoya/node_modules" ]; then
+echo "[ZOYA] Installing backend dependencies (first run)..."
+cd "$BACKEND_DIR"
+bun install
+fi
+# Check if UI dependencies exist
+if [ ! -d "$UI_DIR/node_modules" ]; then
+echo "[ZOYA] Installing UI dependencies (first run)..."
+cd "$UI_DIR"
+bun install
+fi
+# Start backend
+echo "[ZOYA] [1/3] Starting backend server..."
+cd "$BACKEND_DIR"
+export OPENCODE_SERVER_PASSWORD=""
+export OPENCODE_DISABLE_EMBEDDED_WEB_UI=""
+bun run --cwd packages/zoya --conditions=browser src/index.ts serve --port 25810 > "$ZOYA_DIR/logs/zoya_startup.log" 2>&1 &
+BACKEND_PID=$!
+echo "[ZOYA] Backend PID: $BACKEND_PID"
+# Wait for backend with health check
+echo "[ZOYA] [2/3] Waiting for backend..."
+BACKEND_READY=0
+for i in {1..30}; do
+sleep 1
+if curl -s http://127.0.0.1:25810/api/health > /dev/null 2>&1; then
+BACKEND_READY=1
+break
+fi
+echo "[ZOYA] ...waiting ($i/30)"
+done
+if [ $BACKEND_READY -eq 0 ]; then
+echo "[ERROR] Backend failed to start after 30 seconds."
+echo "[ERROR] Check logs: $ZOYA_DIR/logs/zoya_startup.log"
+if [ -f "$ZOYA_DIR/logs/zoya_startup.log" ]; then
+tail -50 "$ZOYA_DIR/logs/zoya_startup.log"
+fi
+kill -KILL $BACKEND_PID 2>/dev/null || true
+exit 1
+fi
+echo "[ZOYA] Backend is ready."
+# Start WebUI
+echo "[ZOYA] [3/3] Starting WebUI..."
+cd "$UI_DIR"
+if [ -f "$UI_DIR/out/renderer/index.html" ]; then
+bun run scripts/webui.ts --no-build --skip-backend --open &
+else
+echo "[ZOYA] UI not built yet. Building now..."
+bun run scripts/webui.ts --skip-backend --open &
+fi
+UI_PID=$!
+echo "[ZOYA] WebUI PID: $UI_PID"
+# Trap to clean up on exit
+cleanup() {
+echo ""
+echo "[ZOYA] Shutting down..."
+kill -TERM $BACKEND_PID 2>/dev/null || true
+kill -TERM $UI_PID 2>/dev/null || true
+sleep 2
+kill -KILL $BACKEND_PID 2>/dev/null || true
+kill -KILL $UI_PID 2>/dev/null || true
+echo "[ZOYA] Goodbye!"
+}
+trap cleanup EXIT INT TERM
+echo ""
+echo "[ZOYA] ZOYA is running at http://127.0.0.1:25809"
+echo "[ZOYA] Press Ctrl+C to stop."
+echo ""
+# Wait for UI
+wait $UI_PID

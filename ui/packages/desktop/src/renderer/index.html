@@ -17,8 +17,9 @@
       // Synchronously restore theme appearance from localStorage to prevent theme flash
       (function () {
         try {
-          var theme = localStorage.getItem('__aionui_theme');
-          if (theme) document.documentElement.setAttribute('data-theme', theme);
+          var theme = localStorage.getItem('__aionui_theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.classList.add(theme);
         } catch (e) {}
       })();
     </script>

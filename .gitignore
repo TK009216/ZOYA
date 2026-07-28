@@ -1,58 +1,80 @@
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
 backend/node_modules/
 ui/node_modules/
+backend/packages/*/node_modules/
+ui/packages/*/node_modules/
 .pnp
 .pnp.js
-
+# ============================================
 # Build outputs
+# ============================================
 dist/
 out/
+build/
 .turbo/
 *.tsbuildinfo
-
-# Runtime files
+# ============================================
+# Runtime files — ALL logs go to logs/ directory
+# ============================================
+logs/
 *.log
+!logs/.gitkeep
+*.pid
+tmp/
+run/
+data/*.db
+data/*.db-journal
+!data/.gitkeep
+# Old root-level log patterns (DEPRECATED — remove these files if they exist)
 acp-*.txt
 webui-*.txt
 server_debug.log
-*.pid
-
+# ============================================
 # OS files
+# ============================================
 Thumbs.db
 .DS_Store
 Desktop.ini
-
-# Windows reserved device names
+# Windows reserved device name artifacts (bugfix remnants)
 /nul
 ui/nul
-
+# ============================================
 # Environment
+# ============================================
 .env
 .env.local
 .env.*.local
-
+# ============================================
 # IDE
+# ============================================
 .vscode/settings.json
 .idea/
 *.swp
 *.swo
-
-# Audio assets (binary)
+# ============================================
+# Binary assets (keep in repo only if needed)
+# ============================================
 *.aac
 *.mp3
 *.wav
 *.ogg
-
-# Font files (binary)
 *.woff
 *.woff2
 *.ttf
 *.eot
-
-# Icon files (binary)
 *.icns
 *.ico
-
+# ============================================
+# Test & coverage
+# ============================================
+coverage/
+*.bak
+*.orig
+.cache/
+# ============================================
 # Large test fixtures
+# ============================================
 backend/packages/zoya/test/tool/fixtures/models-api.json

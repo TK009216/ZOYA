@@ -180,6 +180,18 @@ const docRoute = HttpRouter.use((router) => router.add("GET", "/doc", () => Effe
   Layer.provide(authOnlyRouterLayer),
 )
 
+const healthRoute = HttpRouter.use((router) =>
+  router.add("GET", "/api/health", () =>
+    Effect.sync(() =>
+      HttpServerResponse.jsonUnsafe({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+      }),
+    ),
+  ),
+)
+
 const apiNotFound = HttpRouter.use((router) =>
   router.add("*", "/api/*", () =>
     Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "Not Found" }, { status: 404 })),
@@ -272,6 +284,7 @@ export function createRoutes(
     instanceRoutes,
     serverRoutes,
     docRoute,
+    healthRoute,
     apiNotFound,
     uiRoute,
   ).pipe(

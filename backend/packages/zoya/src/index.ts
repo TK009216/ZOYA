@@ -29,6 +29,36 @@ import { DbCommand } from "./cli/cmd/db"
 import { errorMessage } from "./util/error"
 import { PluginCommand } from "./cli/cmd/plug"
 import { Heap } from "./cli/heap"
+import fs from "fs"
+import path from "path"
+
+// Global error handlers
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[ZOYA] Unhandled Rejection at:", promise, "reason:", reason)
+  try {
+    const logDir = path.join(process.cwd(), "..", "logs")
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
+    const logFile = path.join(logDir, "zoya_errors.log")
+    const logEntry = `[${new Date().toISOString()}] Unhandled Rejection: ${reason}\n`
+    fs.appendFileSync(logFile, logEntry)
+  } catch (e) {
+    // If logging fails, at least we tried
+  }
+})
+
+process.on("uncaughtException", (error) => {
+  console.error("[ZOYA] Uncaught Exception:", error)
+  try {
+    const logDir = path.join(process.cwd(), "..", "logs")
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
+    const logFile = path.join(logDir, "zoya_errors.log")
+    const logEntry = `[${new Date().toISOString()}] Uncaught Exception: ${error.stack || error}\n`
+    fs.appendFileSync(logFile, logEntry)
+  } catch (e) {
+    // If logging fails, at least we tried
+  }
+  process.exit(1)
+})
 
 const args = hideBin(process.argv)
 

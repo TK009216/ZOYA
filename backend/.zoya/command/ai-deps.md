@@ -1,24 +1,40 @@
----
-description: "Bump AI sdk dependencies minor / patch versions only"
----
+This file contains guiding principles for AI provider and model dependency management in ZOYA.
 
-Please read @package.json and @packages/opencode/package.json.
+## AI Provider Support
 
-Your job is to look into AI SDK dependencies, figure out if they have versions that can be upgraded (minor or patch versions ONLY no major ignore major changes).
+ZOYA supports multiple AI providers. Key considerations:
+- Latest stable versions of each provider's SDK
+- Dependency version constraints consistent across backend and UI
+- Fallback handling for unavailable providers
+- Rate limiting and quota management at provider level
 
-I want a report of every dependency and the version that can be upgraded to.
-What would be even better is if you can give me brief summary of the changes for each dep and a link to the changelog for each dependency, or at least some reference info so I can see what bugs were fixed or new features were added.
+## Model Integration
 
-Consider using subagents for each dep to save your context window.
+Model providers integrate through the LLM module system:
+- Plugin-style provider architecture
+- Consistent model interface across providers
+- Provider capability detection (streaming, tools, vision, etc.)
+- Caching of model metadata and capabilities
 
-Here is a short list of some deps (please be comprehensive tho):
+## Dependency Management Practices
 
-- "ai"
-- "@ai-sdk/openai"
-- "@ai-sdk/anthropic"
-- "@openrouter/ai-sdk-provider"
-- etc, etc
+- Use semantic versioning for AI SDK dependencies
+- Lock provider versions to specific ranges, not ranges
+- Test against multiple provider versions for compatibility
+- Maintain separate testing environments for different providers
 
-DO NOT upgrade the dependencies yet, just make a list of all dependencies and their versions that can be upgraded to minor or patch versions only.
+## Security Considerations
 
-Write up your findings to ai-sdk-updates.md
+- API keys and provider credentials are loaded from environment variables
+- No provider credentials committed to version control
+- Token usage monitoring and alerting implemented per provider
+
+## Integration Points
+
+Providers integrate through:
+- LLM module system
+- Core provider management services
+- API configuration system
+- Usage analytics and billing
+
+See also .zoya/agent/command and .zoya/agent/tool for related workflows.
